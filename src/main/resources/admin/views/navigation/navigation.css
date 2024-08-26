@@ -9,12 +9,17 @@
     margin-bottom: var(--spacing-32);
   }
 
+  a {
+    padding: var(--spacing-8) var(--spacing-16);
+  }
+
   a[href] {
     text-decoration: none;
     color: currentColor;
 
     &[aria-current] {
-      color: var(--color-accent);
+      color: var(--color-neutral-background-default);
+      background-color: var(--color-neutral-contrast-default);
     }
 
     &:hover {

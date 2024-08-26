@@ -12,7 +12,7 @@
             [#if item.total > 0]href="${item.url}"[/#if]
             [#if item.key == currentItemKey]aria-current="page"[/#if]>
 
-            <span>${item.key?keep_before(":")}:&shy;</span><b>${item.key?keep_after(":")}</b><span>&nbsp;(${item.total})</span>
+            <b>${item.key?keep_after(":")}</b><span>&nbsp;(${item.total})</span>
           </a>
         [/#list]
       </nav>

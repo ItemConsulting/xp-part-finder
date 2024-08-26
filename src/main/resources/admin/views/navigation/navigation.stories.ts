@@ -9,7 +9,7 @@ export default {
       id,
       params: {
         template: `
-          [#import "/admin/components/navigation/navigation.ftl" as Navigation]
+          [#import "/admin/views/navigation/navigation.ftl" as Navigation]
           [@Navigation.render itemLists=itemLists /]
         `,
       },

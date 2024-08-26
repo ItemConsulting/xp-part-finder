@@ -2,7 +2,7 @@
 [#-- @ftlvariable name="itemLists" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="currentItemKey" type="String" --]
 [#-- @ftlvariable name="currentItem" type="Object" --]
-[#import "../../components/navigation/navigation.ftl" as Navigation]
+[#import "../../views/navigation/navigation.ftl" as Navigation]
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,21 +22,9 @@
 	</head>
 	<body>
     <div class="part-finder">
-      <div class="layout--header">
-        <h1>Part Finder</h1>
-        <nav class="part-finder--filters">
-          [#list filters as filter]
-            <a
-              class="button-filter"
-              href="${filter.url}"
-              [#if filter.current!false]aria-current="true"[/#if]>
-
-              ${filter.text}
-            </a>
-          [/#list]
-        </nav>
+      <div class="layout--header theme-brand1">
+        [#include "../../views/header/header.ftl"]
       </div>
-
 
       <div class="layout--nav">
         [@Navigation.render itemLists=itemLists currentItemKey=currentItemKey /]
@@ -44,7 +32,7 @@
 
       <div class="layout--content">
         [#if currentItem?has_content]
-          [#include "../../components/component-view/component-view.ftl"]
+          [#include "../../views/component-view/component-view.ftl"]
         [/#if]
       </div>
     </div>

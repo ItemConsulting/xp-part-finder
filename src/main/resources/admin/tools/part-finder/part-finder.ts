@@ -11,17 +11,26 @@ import {
   type PartDescriptor,
   type ComponentDescriptorType,
 } from "/lib/xp/schema";
-import { find, flatMap, notNullOrUndefined, runAsAdmin, startsWith, stringAfterLast } from "/lib/part-finder/utils";
-import type { ComponentItem, ComponentList, Link, ToolbarParams } from "./part-finder.freemarker";
-import type { ComponentViewParams } from "/admin/components/component-view/component-view.freemarker";
+import {
+  find,
+  flatMap,
+  notNullOrUndefined,
+  objectKeys,
+  runAsAdmin,
+  startsWith,
+  stringAfterLast,
+} from "/lib/part-finder/utils";
+import type { ComponentItem, ComponentList } from "./part-finder.freemarker";
+import type { ComponentViewParams } from "/admin/views/component-view/component-view.freemarker";
+import type { Header, Link } from "/admin/views/header/header.freemarker";
 
 const view = resolve("part-finder.ftl");
-const componentView = resolve("../../components/component-view/component-view.ftl");
+const componentView = resolve("../../views/component-view/component-view.ftl");
 
 export function all(req: XP.Request): XP.Response {
   const currentItemType = parseComponentType(req.params.type);
   const currentItemKey = req.params.key;
-  const appKey = req.params.appKey;
+  const appKey = req.params.appKey ?? req.params.key?.split(":")[0];
 
   const cmsRepoIds = getCMSRepoIds();
 
@@ -68,38 +77,58 @@ export function all(req: XP.Request): XP.Response {
     .map((appKey) => find(installedApps, (app) => app.key === appKey))
     .filter(notNullOrUndefined)
     .map<Link>((app) => ({
-      text: app.displayName ?? "",
-      url: `${getToolUrl("no.item.partfinder", "part-finder")}?appKey=${app.key}`,
-      current: app.key === appKey,
+      text: app.key ?? "",
+      url: getPartFinderUrl({ appKey: app.key }),
     }));
 
+  if (appKeysWithUsedComponents.length === 0) {
+    return {
+      status: 404,
+      body: "<h1>No installed applications found</h1>",
+    };
+  } else if (!appKey) {
+    return {
+      redirect: getPartFinderUrl({ appKey: appKeysWithUsedComponents[0] }),
+    };
+  }
+
   return {
-    body: render<ComponentList & ComponentViewParams & ToolbarParams>(view, {
+    body: render<ComponentList & ComponentViewParams & Header>(view, {
+      displayName: "Part finder",
+      filters,
       currentItemKey: currentItemKey ?? currentItem.key,
+      currentAppKey: appKey,
       currentItem,
-      filters: [
-        {
-          text: "No filter",
-          url: getToolUrl("no.item.partfinder", "part-finder"),
-          current: appKey === undefined,
-        },
-      ].concat(filters),
       itemLists: [
         {
           title: "Parts",
-          items: parts.filter((part) => appKey === undefined || startsWith(part.key, appKey)),
+          items: parts.filter((part) => startsWith(part.key, appKey)),
         },
         {
           title: "Layouts",
-          items: layouts.filter((layout) => appKey === undefined || startsWith(layout.key, appKey)),
+          items: layouts.filter((layout) => startsWith(layout.key, appKey)),
         },
         {
           title: "Pages",
-          items: pages.filter((page) => appKey === undefined || startsWith(page.key, appKey)),
+          items: pages.filter((page) => startsWith(page.key, appKey)),
         },
       ].filter((list) => list.items.length > 0),
     }),
   };
+}
+
+type GetPartFinderUrlParams = {
+  appKey?: string;
+  key?: string;
+  type?: string;
+};
+
+function getPartFinderUrl(params: GetPartFinderUrlParams): string {
+  const queryParams = objectKeys(params)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
+
+  return `${getToolUrl("no.item.partfinder", "part-finder")}?${queryParams}`;
 }
 
 function getCMSRepoIds(): string[] {
@@ -162,7 +191,10 @@ function getComponentUsages(component: Component, repository: string): Component
     total: res.total,
     key: component.key,
     displayName: component.displayName,
-    url: `${getToolUrl("no.item.partfinder", "part-finder")}?type=${component.type}&key=${component.key}`,
+    url: getPartFinderUrl({
+      type: component.type,
+      key: component.key,
+    }),
     contents: res.hits.map((hit) => ({
       url: `${getToolUrl("com.enonic.app.contentstudio", "main")}/${repo}/edit/${hit._id}`,
       displayName: hit.displayName,
