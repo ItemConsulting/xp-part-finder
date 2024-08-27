@@ -19,26 +19,33 @@ import {
   runAsAdmin,
   startsWith,
   stringAfterLast,
+  unique,
 } from "/lib/part-finder/utils";
 import type { ComponentItem, ComponentList } from "./part-finder.freemarker";
 import type { ComponentViewParams } from "/admin/views/component-view/component-view.freemarker";
 import type { Header, Link } from "/admin/views/header/header.freemarker";
 
+type Component = PartDescriptor | LayoutDescriptor | PageDescriptor;
+
+type PartFinderQueryParams = {
+  key: string;
+  type: string;
+};
+
 const view = resolve("part-finder.ftl");
 const componentView = resolve("../../views/component-view/component-view.ftl");
 
-export function all(req: XP.Request): XP.Response {
+export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
   const currentItemType = parseComponentType(req.params.type);
-  const itemKey = req.params.key;
-  const appKey = req.params.appKey;
+  const componentKey = req.params.key;
 
   const cmsRepoIds = getCMSRepoIds();
 
   // If in Turbo Frame, only render the component view
-  if (req.headers["turbo-frame"] === "content-view" && appKey && itemKey && currentItemType) {
+  if (req.headers["turbo-frame"] === "content-view" && componentKey && currentItemType) {
     const component = getComponent({
       type: currentItemType,
-      key: `${appKey}:${itemKey}`,
+      key: componentKey,
     }) as Component;
 
     if (component) {
@@ -62,19 +69,15 @@ export function all(req: XP.Request): XP.Response {
 
   const allItems = parts.concat(layouts).concat(pages);
 
-  const currentItem =
-    find(allItems, (item) => item.key === `${appKey}:${itemKey}`) ??
-    find(allItems, (item) => appKey !== undefined && startsWith(item.key, appKey)) ??
-    allItems[0];
+  if (!componentKey) {
+    return {
+      redirect: allItems[0].url,
+    };
+  }
 
-  const appKeysWithUsedComponents = allItems.reduce<string[]>((res, item) => {
-    const appName = item.key.split(":")[0];
-    if (res.indexOf(appName) === -1) {
-      return res.concat([appName]);
-    }
+  const currentItem = find(allItems, (item) => item.key === componentKey);
 
-    return res;
-  }, []);
+  const appKeysWithUsedComponents = unique(allItems.map((item) => getAppKey(item.key)));
 
   const filters = appKeysWithUsedComponents
     .map((appKey) => find(installedApps, (app) => app.key === appKey))
@@ -89,46 +92,42 @@ export function all(req: XP.Request): XP.Response {
       status: 404,
       body: "<h1>No installed applications found</h1>",
     };
-  } else if (!appKey) {
-    return {
-      redirect: currentItem.url,
-    };
   }
+
+  const currentAppKey = getAppKey(componentKey);
 
   return {
     body: render<ComponentList & ComponentViewParams & Header>(view, {
       displayName: "Part finder",
       filters,
-      currentItemKey: itemKey ? `${appKey}:${itemKey}` : currentItem.key,
-      currentAppKey: appKey,
+      currentItemKey: componentKey,
+      currentAppKey,
       currentItem,
       itemLists: [
         {
           title: "Parts",
-          items: parts.filter((part) => startsWith(part.key, appKey)),
+          items: parts.filter((part) => startsWith(part.key, currentAppKey)),
         },
         {
           title: "Layouts",
-          items: layouts.filter((layout) => startsWith(layout.key, appKey)),
+          items: layouts.filter((layout) => startsWith(layout.key, currentAppKey)),
         },
         {
           title: "Pages",
-          items: pages.filter((page) => startsWith(page.key, appKey)),
+          items: pages.filter((page) => startsWith(page.key, currentAppKey)),
         },
       ].filter((list) => list.items.length > 0),
     }),
   };
 }
 
-type GetPartFinderUrlParams = {
-  appKey: string;
-  key: string;
-  type: string;
-};
+function getAppKey(key: string): string {
+  return key.split(":")[0];
+}
 
-function getPartFinderUrl(params: GetPartFinderUrlParams): string {
+function getPartFinderUrl(params: PartFinderQueryParams): string {
   const queryParams = objectKeys(params)
-    .map((key) => `${key}=${params[key]}`)
+    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
     .join("&");
 
   return `${getToolUrl("no.item.partfinder", "part-finder")}?${queryParams}`;
@@ -181,7 +180,7 @@ function getComponentUsages(component: Component, repository: string): Component
     () =>
       query({
         query: `components.${component.type}.descriptor = '${component.key}'`,
-        count: 100,
+        count: 1000,
       }),
     {
       repository,
@@ -189,16 +188,14 @@ function getComponentUsages(component: Component, repository: string): Component
   );
 
   const repo = stringAfterLast(repository, ".");
-  const [appKey, key] = component.key.split(":");
 
   return {
     total: res.total,
     key: component.key,
     displayName: component.displayName,
     url: getPartFinderUrl({
-      appKey,
+      key: component.key,
       type: component.type,
-      key,
     }),
     contents: res.hits.map((hit) => ({
       url: `${getToolUrl("com.enonic.app.contentstudio", "main")}/${repo}/edit/${hit._id}`,
@@ -207,8 +204,6 @@ function getComponentUsages(component: Component, repository: string): Component
     })),
   };
 }
-
-type Component = PartDescriptor | LayoutDescriptor | PageDescriptor;
 
 function parseComponentType(str: string = ""): ComponentDescriptorType | undefined {
   const uppercasedStr = str.toUpperCase();

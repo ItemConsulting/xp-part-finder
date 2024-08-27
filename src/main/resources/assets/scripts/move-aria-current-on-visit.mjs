@@ -5,7 +5,7 @@ class MoveAriaCurrentOnVisit extends HTMLElement {
     this.allLinkEls = this.querySelectorAll("a[href]");
     document.addEventListener("turbo:visit", (event) => {
       if (event.detail.url) {
-        this.updateAriaSelected(decodeURIComponent(event.detail.url));
+        this.updateAriaSelected(event.detail.url);
       }
     });
   }
