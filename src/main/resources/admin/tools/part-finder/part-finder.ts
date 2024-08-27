@@ -29,16 +29,16 @@ const componentView = resolve("../../views/component-view/component-view.ftl");
 
 export function all(req: XP.Request): XP.Response {
   const currentItemType = parseComponentType(req.params.type);
-  const currentItemKey = req.params.key;
-  const appKey = req.params.appKey ?? req.params.key?.split(":")[0];
+  const itemKey = req.params.key;
+  const appKey = req.params.appKey;
 
   const cmsRepoIds = getCMSRepoIds();
 
   // If in Turbo Frame, only render the component view
-  if (req.headers["turbo-frame"] === "content-view" && currentItemKey && currentItemType) {
+  if (req.headers["turbo-frame"] === "content-view" && appKey && itemKey && currentItemType) {
     const component = getComponent({
       type: currentItemType,
-      key: currentItemKey,
+      key: `${appKey}:${itemKey}`,
     }) as Component;
 
     if (component) {
@@ -62,7 +62,10 @@ export function all(req: XP.Request): XP.Response {
 
   const allItems = parts.concat(layouts).concat(pages);
 
-  const currentItem = find(allItems, (item) => item.key === currentItemKey) ?? allItems[0];
+  const currentItem =
+    find(allItems, (item) => item.key === `${appKey}:${itemKey}`) ??
+    find(allItems, (item) => appKey !== undefined && startsWith(item.key, appKey)) ??
+    allItems[0];
 
   const appKeysWithUsedComponents = allItems.reduce<string[]>((res, item) => {
     const appName = item.key.split(":")[0];
@@ -78,7 +81,7 @@ export function all(req: XP.Request): XP.Response {
     .filter(notNullOrUndefined)
     .map<Link>((app) => ({
       text: app.key ?? "",
-      url: getPartFinderUrl({ appKey: app.key }),
+      url: find(allItems, (component) => startsWith(component.key, app.key))?.url ?? "",
     }));
 
   if (appKeysWithUsedComponents.length === 0) {
@@ -88,7 +91,7 @@ export function all(req: XP.Request): XP.Response {
     };
   } else if (!appKey) {
     return {
-      redirect: getPartFinderUrl({ appKey: appKeysWithUsedComponents[0] }),
+      redirect: currentItem.url,
     };
   }
 
@@ -96,7 +99,7 @@ export function all(req: XP.Request): XP.Response {
     body: render<ComponentList & ComponentViewParams & Header>(view, {
       displayName: "Part finder",
       filters,
-      currentItemKey: currentItemKey ?? currentItem.key,
+      currentItemKey: itemKey ? `${appKey}:${itemKey}` : currentItem.key,
       currentAppKey: appKey,
       currentItem,
       itemLists: [
@@ -118,9 +121,9 @@ export function all(req: XP.Request): XP.Response {
 }
 
 type GetPartFinderUrlParams = {
-  appKey?: string;
-  key?: string;
-  type?: string;
+  appKey: string;
+  key: string;
+  type: string;
 };
 
 function getPartFinderUrl(params: GetPartFinderUrlParams): string {
@@ -186,14 +189,16 @@ function getComponentUsages(component: Component, repository: string): Component
   );
 
   const repo = stringAfterLast(repository, ".");
+  const [appKey, key] = component.key.split(":");
 
   return {
     total: res.total,
     key: component.key,
     displayName: component.displayName,
     url: getPartFinderUrl({
+      appKey,
       type: component.type,
-      key: component.key,
+      key,
     }),
     contents: res.hits.map((hit) => ({
       url: `${getToolUrl("com.enonic.app.contentstudio", "main")}/${repo}/edit/${hit._id}`,
