@@ -6,7 +6,7 @@
   <h1>${displayName}</h1>
 
   <div class="header--toolbar">
-    <div class="header--nav-label" id="header-nav-label">Show application</div>
+    <div class="header--nav-label" id="header-nav-label">Pick application</div>
     <nav class="header--filters" aria-labelledby="header-nav-label">
       [#list filters as filter]
         <a

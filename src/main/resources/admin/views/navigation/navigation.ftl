@@ -2,7 +2,7 @@
   <move-aria-current-on-visit class="navigation">
     [#list itemLists as itemList]
       [#local labelId=itemList.title?lower_case]
-      <small class="label" id="${labelId}">${itemList.title}</small>
+      <div class="label-big" id="${labelId}">${itemList.title}</div>
       <nav aria-labelledby="${labelId}">
         [#list itemList.items as item]
           <a

@@ -37,6 +37,58 @@ export const navigation: StoryObj<ComponentList> = {
               },
             ],
           },
+          {
+            displayName: "BlocksView",
+            key: "no.item.starter:blocks-view",
+            total: 1,
+            url: "#",
+            contents: [
+              {
+                url: "#",
+                displayName: "Article",
+                path: "/testing/_templates/article",
+              },
+            ],
+          },
+          {
+            displayName: "BlocksView",
+            key: "no.item.starter:blocks-view",
+            total: 1,
+            url: "#",
+            contents: [
+              {
+                url: "#",
+                displayName: "Article",
+                path: "/testing/_templates/article",
+              },
+            ],
+          },
+          {
+            displayName: "BlocksView",
+            key: "no.item.starter:blocks-view",
+            total: 2,
+            url: "#",
+            contents: [
+              {
+                url: "#",
+                displayName: "Article",
+                path: "/testing/_templates/article",
+              },
+            ],
+          },
+          {
+            displayName: "BlocksView",
+            key: "no.item.starter:blocks-view",
+            total: 3,
+            url: "#",
+            contents: [
+              {
+                url: "#",
+                displayName: "Article",
+                path: "/testing/_templates/article",
+              },
+            ],
+          },
         ],
       },
       {

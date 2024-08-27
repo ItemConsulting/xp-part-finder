@@ -5,15 +5,13 @@ table.table {
 
   caption {
     text-align: left;
-    margin-bottom: var(--spacing-32);
-    font-size: var(--font-size-large);
   }
 
   th,
   td {
     text-align: left;
     border: 1px solid var(--color-black-contrast-2);
-    padding: var(--spacing-16);
+    padding: var(--spacing-8) var(--spacing-16);
 
     &:first-child {
       min-width: 160px;

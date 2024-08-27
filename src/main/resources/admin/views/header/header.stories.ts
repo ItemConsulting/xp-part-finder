@@ -6,9 +6,15 @@ import type { Header } from "./header.freemarker";
 export default {
   title: "Components/Header",
   parameters: {
-    layout: "fullscreen",
     server: {
       id,
+      params: {
+        template: `
+        <div class="theme-brand1" style="background-color: var(--color-theme-base-default);">
+          [#include "${id}" /]
+        </div>
+        `,
+      },
     },
   },
 } satisfies Meta<Header>;

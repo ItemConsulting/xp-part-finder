@@ -5,6 +5,19 @@
   padding-block: var(--spacing-16);
   gap: var(--spacing-16);
 
+  h1:before {
+    content: "";
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    mask-image: var(--icon-app);
+    display: inline-block;
+    background-color: currentColor;
+    height: 1em;
+    width: 1em;
+    transform: translateY(4px);
+    margin-right: var(--spacing-8);
+  }
+
   .header--toolbar {
     display: flex;
     flex-direction: column;

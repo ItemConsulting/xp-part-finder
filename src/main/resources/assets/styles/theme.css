@@ -63,32 +63,6 @@
     --color-accent-text-subtle: var(--color-turquoise-12);
     --color-accent-text-default: var(--color-turquoise-13);
   }
-
-  .theme-brand2 {
-    --color-theme-background-default: var(--color-black-1);
-    --color-theme-base-default: var(--color-black-9);
-    --color-theme-base-hover: var(--color-black-10);
-    --color-theme-base-active: var(--color-black-11);
-    --color-theme-text-subtle: var(--color-black-12);
-    --color-theme-text-default: var(--color-black-1);
-    --color-theme-contrast-default: var(--color-black-contrast-1);
-    --color-theme-contrast-subtle: var(--color-black-contrast-2);
-
-    /* Use accent color with more contrast */
-    --color-accent-text-subtle: var(--color-turquoise-12);
-    --color-accent-text-default: var(--color-turquoise-13);
-  }
-
-  .theme-brand3 {
-    --color-theme-background-default: var(--color-light-1);
-    --color-theme-base-default: var(--color-light-9);
-    --color-theme-base-hover: var(--color-light-10);
-    --color-theme-base-active: var(--color-light-11);
-    --color-theme-text-subtle: var(--color-light-12);
-    --color-theme-text-default: var(--color-light-13);
-    --color-theme-contrast-default: var(--color-light-contrast-1);
-    --color-theme-contrast-subtle: var(--color-light-contrast-2);
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -117,9 +91,7 @@
 
     .theme-accent,
     .theme-neutral,
-    .theme-brand1,
-    .theme-brand2,
-    .theme-brand3 {
+    .theme-brand1 {
       --color-theme-background-default: var(--color-dark-1);
       --color-theme-base-default: var(--color-dark-9);
       --color-theme-base-hover: var(--color-dark-10);

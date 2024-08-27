@@ -2,6 +2,8 @@
 @import "core.css";
 @import "colors.css";
 @import "theme.css";
+@import "utils/label.css";
+@import "utils/icons.css";
 @import "../../admin/views/navigation/navigation.css";
 @import "../../admin/views/header/header.css";
 @import "../../admin/views/component-view/component-view.css";
