@@ -3,7 +3,7 @@
 [#-- @ftlvariable name="filters" type="java.util.ArrayList" --]
 
 <header class="header">
-  <h1>${displayName}</h1>
+  <h1 data-turbo-permanent="true">${displayName}</h1>
 
   <div class="header--toolbar">
     <div class="header--nav-label" id="header-nav-label">Pick application</div>
