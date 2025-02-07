@@ -1,8 +1,17 @@
 import { render } from "/lib/tineikt/freemarker";
 import { list as listApps, type Application } from "/lib/xp/app";
 import { list as listRepos } from "/lib/xp/repo";
+import { getSupportedLocales, localize } from "/lib/xp/i18n";
 import { listComponents, type ComponentDescriptorType, type ComponentDescriptor } from "/lib/xp/schema";
-import { assertIsDefined, getPartFinderUrl, notNullOrUndefined, runAsAdmin, startsWith } from "/lib/part-finder/utils";
+import { Locale, LanguageRange } from "/lib/time";
+import {
+  assertIsDefined,
+  forceArray,
+  getPartFinderUrl,
+  notNullOrUndefined,
+  runAsAdmin,
+  startsWith,
+} from "/lib/part-finder/utils";
 import { getComponentNavLinkList } from "../../views/navigation/navigation";
 import { getComponentUsagesInRepo } from "../../views/component-view/component-view";
 import type { ComponentList } from "./part-finder.freemarker";
@@ -17,7 +26,7 @@ type PartFinderQueryParams = {
   dir?: string;
 };
 
-const PAGE_TITLE = "Part finder";
+const LOCALE_DEFAULT = "en";
 const view = resolve("part-finder.ftl");
 const componentView = resolve("../../views/component-view/component-view.ftl");
 
@@ -25,6 +34,12 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
   const currentItemType = parseComponentType(req.params.type);
   const currentItemKey = req.params.key;
   const installedApps = listAppsWithComponents();
+  const locale = getLocale(req);
+  const title = localize({
+    key: "part-finder.pageTitle",
+    locale,
+    values: forceArray(currentItemKey),
+  });
 
   if (installedApps.length === 0) {
     return {
@@ -59,6 +74,7 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
           field: req.params.sort ?? "_path",
           direction: parseSortDirection(req.params.dir),
         },
+        locale,
       )
     : undefined;
 
@@ -76,7 +92,7 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
         markup: render<ComponentViewParams>(componentView, {
           currentItem,
         }),
-        title: `${PAGE_TITLE} - ${currentItem.key}`,
+        title,
       }),
     };
   }
@@ -99,8 +115,8 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
 
   return {
     body: render<ComponentList & ComponentViewParams & Header>(view, {
-      title: `${PAGE_TITLE} - ${currentItem?.key}`,
-      displayName: PAGE_TITLE,
+      locale,
+      title,
       filters,
       currentItemKey,
       currentAppKey,
@@ -108,6 +124,16 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
       itemLists,
     }),
   };
+}
+
+function getLocale(req: XP.Request): string {
+  const acceptLanguage = req.headers["Accept-Language"];
+
+  if (!acceptLanguage) {
+    return LOCALE_DEFAULT;
+  }
+  const languageRange = LanguageRange.parse(acceptLanguage);
+  return Locale.filterTags(languageRange, getSupportedLocales(["i18n/phrases"]))[0] ?? LOCALE_DEFAULT;
 }
 
 function listAppsWithComponents(): Application[] {

@@ -1,23 +1,11 @@
 import { getToolUrl } from "/lib/xp/admin";
+import { localize } from "/lib/xp/i18n";
 import { queryAllRepos } from "/lib/part-finder/nodes";
 import { getPartFinderUrl } from "/lib/part-finder/utils";
 import type { AriaSortDirection, ComponentView, Heading } from "./component-view.freemarker";
 import type { Content, SortDirection, SortDsl } from "@enonic-types/core";
 
-const TABLE_HEADINGS: Omit<Heading, "url">[] = [
-  {
-    text: "Display name",
-    name: "displayName",
-  },
-  {
-    text: "Type",
-    name: "type",
-  },
-  {
-    text: "Path",
-    name: "_path",
-  },
-] as const;
+const TABLE_HEADINGS = ["displayName", "type", "_path"] as const;
 
 const ARIA_SORT_DIRECTION: Record<SortDirection, AriaSortDirection> = {
   ASC: "ascending",
@@ -28,6 +16,7 @@ export function getComponentUsagesInRepo(
   component: { key: string; type: string },
   repositories: string[],
   sort: Partial<SortDsl>,
+  locale: string,
 ): ComponentView {
   const contents = queryAllRepos<Content>(repositories, {
     count: 1000,
@@ -51,21 +40,27 @@ export function getComponentUsagesInRepo(
   return {
     key: component.key,
     contents,
-    headings: TABLE_HEADINGS.map((heading) => ({
-      ...heading,
-      url: getPartFinderUrl({
-        key: component.key,
-        type: component.type,
-        sort: heading.name,
-        dir:
-          heading.name === sort.field
-            ? // if current, use opposite direction
-              sort.direction == "ASC"
-              ? "DESC"
-              : "ASC"
-            : (sort.direction ?? "ASC"),
+    headings: TABLE_HEADINGS.map(
+      (name): Heading => ({
+        name,
+        text: localize({
+          key: `part-finder.heading.${name}`,
+          locale,
+        }),
+        url: getPartFinderUrl({
+          key: component.key,
+          type: component.type,
+          sort: name,
+          dir:
+            name === sort.field
+              ? // if current, use opposite direction
+                sort.direction == "ASC"
+                ? "DESC"
+                : "ASC"
+              : (sort.direction ?? "ASC"),
+        }),
+        sortDirection: sort.field === name ? ARIA_SORT_DIRECTION[sort.direction ?? "ASC"] : undefined,
       }),
-      sortDirection: sort.field === heading.name ? ARIA_SORT_DIRECTION[sort.direction ?? "ASC"] : undefined,
-    })),
+    ),
   };
 }
