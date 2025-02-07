@@ -1,5 +1,5 @@
+[#-- @ftlvariable name="locale" type="String" --]
 [#-- @ftlvariable name="title" type="String" --]
-[#-- @ftlvariable name="displayName" type="String" --]
 [#-- @ftlvariable name="filters" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="itemLists" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="currentItemKey" type="String" --]

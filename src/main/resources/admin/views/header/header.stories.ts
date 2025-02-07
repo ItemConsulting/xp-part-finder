@@ -22,7 +22,6 @@ export default {
 
 export const header: StoryObj<Header> = {
   args: {
-    displayName: "Part finder",
     currentAppKey: "no.item.www",
     filters: [
       {
