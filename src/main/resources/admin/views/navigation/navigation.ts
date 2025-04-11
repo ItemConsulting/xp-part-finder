@@ -1,6 +1,17 @@
 import { multiRepoConnect, type Aggregations, type DateBucket, type NumericBucket } from "/lib/xp/node";
-import { getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import {
+  ComponentDescriptorType,
+  LayoutDescriptor,
+  listComponents,
+  PageDescriptor,
+  PartDescriptor,
+} from "/lib/xp/schema";
+import { difference, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
 import type { ComponentNavLink, ComponentNavLinkList } from "./navigation.freemarker";
+
+type WithKey = {
+  key: string;
+};
 
 export function getComponentNavLinkList(repoIds: string[], currentAppKey: string): ComponentNavLinkList[] {
   const aggregations = {
@@ -42,36 +53,68 @@ export function getComponentNavLinkList(repoIds: string[], currentAppKey: string
   return [
     {
       title: "Parts",
-      items: res.aggregations.part.buckets.filter(appFilter).map<ComponentNavLink>((bucket) => ({
-        docCount: bucket.docCount,
-        key: bucket.key,
-        url: getPartFinderUrl({
-          key: bucket.key,
-          type: "PART",
-        }),
-      })),
+      items: getComponentNavLinks(res.aggregations.part.buckets.filter(appFilter), currentAppKey, "PART"),
     },
     {
       title: "Layouts",
-      items: res.aggregations.layout.buckets.filter(appFilter).map<ComponentNavLink>((bucket) => ({
-        docCount: bucket.docCount,
-        key: bucket.key,
-        url: getPartFinderUrl({
-          key: bucket.key,
-          type: "LAYOUT",
-        }),
-      })),
+      items: getComponentNavLinks(res.aggregations.layout.buckets.filter(appFilter), currentAppKey, "LAYOUT"),
     },
     {
       title: "Pages",
-      items: res.aggregations.page.buckets.filter(appFilter).map<ComponentNavLink>((bucket) => ({
-        docCount: bucket.docCount,
-        key: bucket.key,
-        url: getPartFinderUrl({
-          key: bucket.key,
-          type: "PAGE",
-        }),
-      })),
+      items: getComponentNavLinks(res.aggregations.page.buckets.filter(appFilter), currentAppKey, "PAGE"),
     },
   ].filter((list) => list.items.length > 0);
+}
+
+function getComponentNavLinks(
+  buckets: (DateBucket | NumericBucket)[],
+  application: string,
+  type: ComponentDescriptorType,
+): ComponentNavLink[] {
+  const componentsWithSchema = listComponents({
+    type,
+    application,
+  });
+
+  const unusedComponents = difference(componentsWithSchema, buckets, keysEqual).map((component) =>
+    getComponentNavLink(component, type),
+  );
+
+  const componentsUsedInContent = buckets.map((componentInContent) =>
+    getComponentNavLink(
+      componentInContent,
+      type,
+      includesKey(componentsWithSchema, componentInContent) ? undefined : "part-finder.missing-schema",
+    ),
+  );
+
+  const links = [...componentsUsedInContent, ...unusedComponents];
+
+  links.sort((x, y) => x.key.localeCompare(y.key));
+
+  return links;
+}
+
+function getComponentNavLink(
+  component: DateBucket | NumericBucket | PartDescriptor | LayoutDescriptor | PageDescriptor,
+  type: ComponentDescriptorType,
+  warningKey?: string | undefined,
+): ComponentNavLink {
+  return {
+    docCount: "docCount" in component ? component.docCount : 0,
+    key: component.key,
+    url: getPartFinderUrl({
+      key: component.key,
+      type,
+    }),
+    warningKey,
+  };
+}
+
+function keysEqual(x: WithKey, y: WithKey): boolean {
+  return x.key === y.key;
+}
+
+function includesKey(xs: WithKey[], y: WithKey): boolean {
+  return xs.map((x) => x.key).indexOf(y.key) !== -1;
 }
