@@ -1,10 +1,12 @@
 import { connect, multiRepoConnect, type Node, type QueryNodeParams } from "/lib/xp/node";
 import { notNullOrUndefined } from "/lib/part-finder/utils";
 
+export type QueryAllReposResponse<NodeData = Record<string, unknown>> = Node<NodeData & { projectId: string }>;
+
 export function queryAllRepos<NodeData = Record<string, unknown>>(
   repositories: string[],
   queryParams: QueryNodeParams,
-): Node<NodeData & { repoId: string }>[] {
+): QueryAllReposResponse<NodeData>[] {
   const connection = multiRepoConnect({
     sources: repositories.map((repoId) => ({
       repoId,
@@ -25,7 +27,10 @@ export function queryAllRepos<NodeData = Record<string, unknown>>(
       if (!content) {
         return null;
       } else {
-        return { ...content, repoId };
+        return {
+          ...content,
+          projectId: repoId.replace("com.enonic.cms.", ""),
+        };
       }
     })
     .filter(notNullOrUndefined);

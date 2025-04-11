@@ -22,4 +22,6 @@ export type Usage = {
   displayName: string;
   type: string;
   path: string;
+  projectId: string;
+  projectIconUrl: string;
 };

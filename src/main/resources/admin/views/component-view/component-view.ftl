@@ -27,8 +27,16 @@
     <tbody>
       [#list currentItem.contents as content]
         <tr>
-          <td>${content.displayName}</td>
-          <td>${content.type}</td>
+          <td>
+            <img src="${content.projectIconUrl}" alt="${content.projectId}" title="${content.projectId}">
+          </td>
+          <td>
+            <img
+              src="/admin/rest-v2/cs/schema/content/icon/${content.type}"
+              alt="${content.type}"
+              title="${content.type}">
+          </td>
+          <td class="name">${content.displayName}</td>
           <td><a href="${content.url}" target="_top">${content.path}</a></td>
         </tr>
       [/#list]
