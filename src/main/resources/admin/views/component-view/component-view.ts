@@ -18,11 +18,13 @@ export function getComponentUsagesInRepo(
   sort: Partial<SortDsl>,
   locale: string,
 ): ComponentView {
+  const direction = sort.direction ?? "ASC";
+
   const contents = queryAllRepos<Content>(repositories, {
     count: 1000,
     sort: {
       field: sort.field ?? "_path",
-      direction: sort.direction ?? "ASC",
+      direction,
     },
     filters: {
       hasValue: {
@@ -54,12 +56,12 @@ export function getComponentUsagesInRepo(
           dir:
             name === sort.field
               ? // if current, use opposite direction
-                sort.direction == "ASC"
+                direction === "ASC"
                 ? "DESC"
                 : "ASC"
-              : (sort.direction ?? "ASC"),
+              : (direction ?? "ASC"),
         }),
-        sortDirection: sort.field === name ? ARIA_SORT_DIRECTION[sort.direction ?? "ASC"] : undefined,
+        sortDirection: sort.field === name ? ARIA_SORT_DIRECTION[direction ?? "ASC"] : undefined,
       }),
     ),
   };
