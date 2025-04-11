@@ -2,7 +2,12 @@ import { render } from "/lib/tineikt/freemarker";
 import { list as listApps, type Application } from "/lib/xp/app";
 import { list as listRepos } from "/lib/xp/repo";
 import { getSupportedLocales, localize } from "/lib/xp/i18n";
-import { listComponents, type ComponentDescriptorType, type ComponentDescriptor } from "/lib/xp/schema";
+import {
+  listComponents,
+  type ComponentDescriptorType,
+  type ComponentDescriptor,
+  type ListDynamicComponentsParams,
+} from "/lib/xp/schema";
 import { Locale, LanguageRange } from "/lib/time";
 import {
   assertIsDefined,
@@ -145,19 +150,25 @@ function listAppsWithComponents(): Application[] {
 
 function getFirstComponent(app: Application): ComponentDescriptor | undefined {
   return (
-    listComponents({
+    getFirstComponentAlphabetically({
       type: "PART",
       application: app.key,
-    })[0] ??
-    listComponents({
+    }) ??
+    getFirstComponentAlphabetically({
       type: "LAYOUT",
       application: app.key,
-    })[0] ??
-    listComponents({
+    }) ??
+    getFirstComponentAlphabetically({
       type: "PAGE",
       application: app.key,
-    })[0]
+    })
   );
+}
+
+function getFirstComponentAlphabetically(params: ListDynamicComponentsParams): ComponentDescriptor | undefined {
+  const components = listComponents(params);
+  components.sort((a, b) => a.key.localeCompare(b.key));
+  return components[0];
 }
 
 function getAppKey(key: string): string {

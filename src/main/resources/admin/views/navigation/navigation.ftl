@@ -1,9 +1,11 @@
+[#-- @ftlvariable name="locale" type="String" --]
 [#-- @ftlvariable name="itemLists" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="itemList.title" type="String" --]
 [#-- @ftlvariable name="itemList.items" type="String" --]
 [#-- @ftlvariable name="item.url" type="String" --]
 [#-- @ftlvariable name="item.docCount" type="Integer" --]
 [#-- @ftlvariable name="item.key" type="String" --]
+[#-- @ftlvariable name="item.warningKey" type="String" --]
 
 [#macro render itemLists currentItemKey=""]
   <move-aria-current-on-visit class="navigation">
@@ -20,6 +22,10 @@
             [#if item.key == currentItemKey]aria-current="page"[/#if]>
 
             <b>${item.key?keep_after(":")}</b><span>&nbsp;(${item.docCount})</span>
+
+            [#if item.warningKey?has_content]
+              <span title="[@localize key=item.warningKey locale=locale!'en' /]">⚠️</span>
+            [/#if]
           </a>
         [/#list]
       </nav>

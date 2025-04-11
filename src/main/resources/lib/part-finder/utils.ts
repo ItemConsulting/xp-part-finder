@@ -28,6 +28,10 @@ export function find<T>(arr: T[], predicate: (value: T) => boolean): T | undefin
   }
 }
 
+export function difference<A, B>(xs: A[], ys: B[], predicate: (x: A, y: B) => boolean): A[] {
+  return xs.filter((x) => !ys.some((y) => predicate(x, y)));
+}
+
 export function unique(arr: string[]): string[] {
   return arr.filter((value, index, all) => all.indexOf(value) === index);
 }
