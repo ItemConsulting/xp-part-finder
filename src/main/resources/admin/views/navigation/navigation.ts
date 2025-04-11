@@ -6,7 +6,7 @@ import {
   PageDescriptor,
   PartDescriptor,
 } from "/lib/xp/schema";
-import { difference, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import { difference, getPartFinderUrl, runAsAdmin, startsWith } from "/lib/part-finder/utils";
 import type { ComponentNavLink, ComponentNavLinkList } from "./navigation.freemarker";
 
 type WithKey = {
@@ -71,10 +71,12 @@ function getComponentNavLinks(
   application: string,
   type: ComponentDescriptorType,
 ): ComponentNavLink[] {
-  const componentsWithSchema = listComponents({
-    type,
-    application,
-  });
+  const componentsWithSchema = runAsAdmin(() =>
+    listComponents({
+      type,
+      application,
+    }),
+  );
 
   const unusedComponents = difference(componentsWithSchema, buckets, keysEqual).map((component) =>
     getComponentNavLink(component, type),
