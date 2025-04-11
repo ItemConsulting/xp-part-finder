@@ -46,6 +46,11 @@ export function getComponentNavLinkList(repoIds: string[], currentAppKey: string
   const res = connection.query<typeof aggregations>({
     count: 0,
     aggregations,
+    filters: {
+      notExists: {
+        field: "archivedTime",
+      },
+    },
   });
 
   const appFilter = (bucket: DateBucket | NumericBucket) => startsWith(bucket.key, currentAppKey);

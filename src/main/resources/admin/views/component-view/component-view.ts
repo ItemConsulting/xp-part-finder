@@ -3,10 +3,11 @@ import { assetUrl } from "/lib/xp/portal";
 import { list as listProjects } from "/lib/xp/project";
 import { localize } from "/lib/xp/i18n";
 import { queryAllRepos, type QueryAllReposResponse } from "/lib/part-finder/nodes";
-import { getPartFinderUrl } from "/lib/part-finder/utils";
+import { getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
 import type { AriaSortDirection, ComponentView, Heading, Usage } from "./component-view.freemarker";
 import type { Content, SortDirection, SortDsl } from "@enonic-types/core";
 
+const CONTENT_ROOT_PATH = "/content";
 const TABLE_HEADINGS: (keyof Usage)[] = ["projectId", "type", "displayName", "path"];
 
 const ARIA_SORT_DIRECTION: Record<SortDirection, AriaSortDirection> = {
@@ -28,12 +29,19 @@ export function getComponentUsagesInRepo(
       field: sort.field ?? "_path",
       direction,
     },
-    filters: {
-      hasValue: {
-        field: `components.${component.type}.descriptor`,
-        values: [component.key],
+    filters: [
+      {
+        hasValue: {
+          field: `components.${component.type}.descriptor`,
+          values: [component.key],
+        },
       },
-    },
+      {
+        notExists: {
+          field: "archivedTime",
+        },
+      },
+    ],
   }).map<Usage>((content) => getUsageObject(content, projectLanguages));
 
   return {
@@ -68,7 +76,9 @@ function getUsageObject(content: QueryAllReposResponse<Content>, projectLanguage
   return {
     url: getEditContentUrl(content),
     displayName: content.displayName ?? content._name,
-    path: content._path,
+    path: startsWith(content._path, CONTENT_ROOT_PATH)
+      ? content._path.substring(CONTENT_ROOT_PATH.length)
+      : content._path,
     type: content.type,
     projectId: content.projectId,
     projectIconUrl: getIconUrl(projectLanguages[content.projectId]),
