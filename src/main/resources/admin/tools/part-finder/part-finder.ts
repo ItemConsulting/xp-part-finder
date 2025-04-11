@@ -166,7 +166,7 @@ function getFirstComponent(app: Application): ComponentDescriptor | undefined {
 }
 
 function getFirstComponentAlphabetically(params: ListDynamicComponentsParams): ComponentDescriptor | undefined {
-  const components = listComponents(params);
+  const components = runAsAdmin(() => listComponents(params));
   components.sort((a, b) => a.key.localeCompare(b.key));
   return components[0];
 }

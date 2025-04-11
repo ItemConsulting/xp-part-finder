@@ -3,6 +3,7 @@
   <display-name i18n="part-finder.displayName">Part finder</display-name>
   <description i18n="part-finder.description">See where your parts are used!</description>
   <allow>
-    <principal>role:system.admin.login</principal>
+    <principal>role:system.admin</principal>
+    <principal>role:no.item.partfinder.viewer</principal>
   </allow>
 </tool>

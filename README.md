@@ -7,6 +7,13 @@ admin tool that lists usage of your components (parts, layouts, pages) to help y
 
 ![Part finder icon](./src/main/resources/application.svg)
 
+## Roles
+
+Users will be able to interact with the application – and see it on their home screen if they have one of the following
+roles:
+ 1. `"system.admin"`
+ 2. `"no.item.partfinder.viewer"` _(given in the Users app)_
+
 ## Setup
 
 Install npm-dependencies
