@@ -12,7 +12,7 @@
       "./src/main/resources",
       "./.xp-codegen"
     ],
-    "types": ["@item-enonic-types/global", "@itemconsulting/xp-storybook-utils/global"],
+    "types": ["@enonic-types/global", "@itemconsulting/xp-storybook-utils/global"],
 		"paths": {
       "/lib/tineikt/freemarker": ["./node_modules/@item-enonic-types/lib-freemarker"],
 			"/lib/xp/*": ["./node_modules/@enonic-types/lib-*"],

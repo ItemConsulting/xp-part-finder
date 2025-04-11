@@ -17,20 +17,22 @@ import { getComponentUsagesInRepo } from "../../views/component-view/component-v
 import type { ComponentList } from "./part-finder.freemarker";
 import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
-import type { SortDirection } from "@enonic-types/core";
+import type { Request, Response, SortDirection } from "@enonic-types/core";
 
 type PartFinderQueryParams = {
-  key: string;
-  type: ComponentDescriptorType;
-  sort?: string;
-  dir?: string;
+  params: {
+    key: string;
+    type: ComponentDescriptorType;
+    sort?: string;
+    dir?: string;
+  };
 };
 
 const LOCALE_DEFAULT = "en";
 const view = resolve("part-finder.ftl");
 const componentView = resolve("../../views/component-view/component-view.ftl");
 
-export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
+export function get(req: Request<PartFinderQueryParams>): Response {
   const currentItemType = parseComponentType(req.params.type);
   const currentItemKey = req.params.key;
   const installedApps = listAppsWithComponents();
@@ -54,6 +56,7 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
     assertIsDefined(firstComponent);
 
     return {
+      body: undefined,
       redirect: getPartFinderUrl({
         key: firstComponent.key,
         type: firstComponent.type,
@@ -126,7 +129,7 @@ export function get(req: XP.Request<PartFinderQueryParams>): XP.Response {
   };
 }
 
-function getLocale(req: XP.Request): string {
+function getLocale(req: Request): string {
   const acceptLanguage = req.headers["Accept-Language"];
 
   if (!acceptLanguage) {

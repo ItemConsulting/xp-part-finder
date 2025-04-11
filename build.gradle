@@ -1,7 +1,7 @@
 plugins {
   id "java"
   id "maven-publish"
-  id "com.enonic.xp.app" version "3.5.2"
+  id "com.enonic.xp.app" version "3.6.1"
   id "com.github.node-gradle.node" version "7.1.0"
 }
 
@@ -35,7 +35,7 @@ dependencies {
   include "no.item:lib-xp-time:1.2.1"
   include "no.item:lib-xp-turbo:1.1.1"
   include "com.github.tineikt:xp-lib-freemarker:2.0.3"
-  webjar "org.webjars.npm:hotwired__turbo:8.0.10"
+  webjar "org.webjars.npm:hotwired__turbo:8.0.13"
 }
 
 repositories {
@@ -48,7 +48,7 @@ repositories {
 
 node {
   download = true
-  version = "20.12.2"
+  version = "22.12.0"
 }
 
 tasks.withType(Copy).configureEach {
