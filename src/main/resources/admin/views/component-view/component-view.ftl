@@ -28,7 +28,11 @@
       [#list currentItem.contents as content]
         <tr>
           <td>
-            <img src="${content.projectIconUrl}" alt="${content.projectId}" title="${content.projectId}">
+            [#if content.projectId == "default"]
+              default
+            [#else]
+              <img src="${content.projectIconUrl}" alt="${content.projectId}" title="${content.projectId}">
+            [/#if]
           </td>
           <td>
             <img
