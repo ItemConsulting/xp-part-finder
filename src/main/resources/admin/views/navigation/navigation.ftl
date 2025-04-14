@@ -21,7 +21,7 @@
             [#if item.docCount > 0]href="${item.url}"[/#if]
             [#if item.key == currentItemKey]aria-current="page"[/#if]>
 
-            <b>${item.key?keep_after(":")}</b><span>&nbsp;(${item.docCount})</span>
+            <span class="key">${item.key?keep_after(":")}</span><span>&nbsp;(${item.docCount})</span>
 
             [#if item.warningKey?has_content]
               <span title="[@localize key=item.warningKey locale=locale!'en' /]">⚠️</span>

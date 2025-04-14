@@ -14,5 +14,5 @@ a[href]:not([class]) {
 }
 
 a:not([href]) {
-  color: var(--color-white-12);
+  text-decoration: line-through;
 }

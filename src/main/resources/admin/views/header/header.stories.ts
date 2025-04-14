@@ -22,6 +22,7 @@ export default {
 
 export const header: StoryObj<Header> = {
   args: {
+    locale: "no",
     currentAppKey: "no.item.www",
     filters: [
       {

@@ -15,15 +15,16 @@ const componentArticleHeader: ComponentViewParams["currentItem"] = {
   key: "no.item.starter:article-header",
   headings: [
     {
-      text: "Display name",
-      name: "displayName",
-      url: "#",
-    },
-    {
       text: "Type",
       name: "type",
       url: "#",
     },
+    {
+      text: "Display name",
+      name: "displayName",
+      url: "#",
+    },
+
     {
       text: "Path",
       name: "_path",
@@ -31,12 +32,19 @@ const componentArticleHeader: ComponentViewParams["currentItem"] = {
       url: "#",
     },
   ],
-  contents: [
+  projects: [
     {
-      url: "#",
-      displayName: "Article",
-      path: "/testing/_templates/article",
-      type: "portal:page",
+      id: "mypage",
+      displayName: "My Page",
+      contents: [
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+          typeIconUrl: "images/icon.svg",
+        },
+      ],
     },
   ],
 };

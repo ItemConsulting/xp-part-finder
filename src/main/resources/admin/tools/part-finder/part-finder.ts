@@ -18,7 +18,7 @@ import {
   startsWith,
 } from "/lib/part-finder/utils";
 import { getComponentNavLinkList } from "../../views/navigation/navigation";
-import { getComponentUsagesInRepo } from "../../views/component-view/component-view";
+import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
 import type { ComponentList } from "./part-finder.freemarker";
 import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
@@ -72,15 +72,14 @@ export function get(req: Request<PartFinderQueryParams>): Response {
   const currentAppKey = getAppKey(currentItemKey);
   const cmsRepoIds = getCMSRepoIds();
   const currentItem = currentItemType
-    ? getComponentUsagesInRepo(
+    ? getComponentUsagesInProjects(
         {
           key: currentItemKey,
           type: currentItemType,
         },
-        cmsRepoIds,
         {
           field: req.params.sort ?? "_path",
-          direction: parseSortDirection(req.params.dir),
+          direction: parseSortDirection(req.params.dir) ?? "ASC",
         },
         locale,
       )
