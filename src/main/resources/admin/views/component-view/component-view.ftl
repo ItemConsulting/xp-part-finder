@@ -14,23 +14,23 @@
   <table class="table">
     <caption class="label-big">${project.displayName} (${project.id})</caption>
     <thead>
-    <tr>
-      [#list currentItem.headings as heading]
-        <th
-          scope="col"
-          [#if heading.sortDirection?has_content]aria-sort="${heading.sortDirection}"[/#if]>
+      <tr>
+        [#list currentItem.headings as heading]
+          <th
+            scope="col"
+            [#if heading.sortDirection?has_content]aria-sort="${heading.sortDirection}"[/#if]>
 
-          <a
-            class="sort-link"
-            href="${heading.url}">
+            <a
+              class="sort-link"
+              href="${heading.url}">
 
-            ${heading.text}
-          </a>
+              ${heading.text}
+            </a>
 
-          <span aria-hidden="true"></span>
-        </th>
-      [/#list]
-    </tr>
+            <span aria-hidden="true"></span>
+          </th>
+        [/#list]
+      </tr>
     </thead>
     <tbody>
     [#list contents as content]
