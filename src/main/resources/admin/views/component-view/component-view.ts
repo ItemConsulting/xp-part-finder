@@ -1,9 +1,9 @@
 import { getToolUrl } from "/lib/xp/admin";
-import { run } from "/lib/xp/context";
+import { get as getContext, run as runInContext } from "/lib/xp/context";
 import { list as listProjects } from "/lib/xp/project";
 import { query } from "/lib/xp/content";
 import { localize } from "/lib/xp/i18n";
-import { getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import { forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
 import type { AriaSortDirection, ComponentView, Heading, Usage } from "./component-view.freemarker";
 import type { Content, FieldSortDsl, SortDirection, SortDsl } from "@enonic-types/core";
 
@@ -42,11 +42,11 @@ function getSimpleProjectContents(
   component: { key: string; type: string },
   sort: Required<FieldSortDsl>,
 ): Usage[] {
-  const res = run(
+  const res = runInContext(
     {
       repository: `com.enonic.cms.${projectId}`,
       branch: "draft",
-      principals: ["role:system.admin"],
+      principals: forceArray(getContext().authInfo?.principals),
     },
     () => {
       return query({

@@ -1,4 +1,3 @@
-import { run, type ContextParams } from "/lib/xp/context";
 import { getToolUrl } from "/lib/xp/admin";
 
 export function forceArray<A>(data: A | Array<A> | undefined | null): Array<A>;
@@ -50,17 +49,6 @@ export function flatMap<A, B>(arr: A[], f: (val: A) => B[]): B[] {
 
 export function stringAfterLast(str: string, delimiter: string): string {
   return str.substring(str.lastIndexOf(delimiter) + 1);
-}
-
-export function runAsAdmin<T>(callback: () => T, params: ContextParams = {}): T {
-  return run(
-    {
-      branch: "draft",
-      principals: ["role:system.admin"],
-      ...params,
-    },
-    callback,
-  );
 }
 
 export function getPartFinderUrl(params: Record<string, string>): string {

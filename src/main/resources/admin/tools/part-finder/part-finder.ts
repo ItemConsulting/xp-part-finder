@@ -1,28 +1,19 @@
 import { render } from "/lib/tineikt/freemarker";
-import { list as listApps, type Application } from "/lib/xp/app";
-import { list as listRepos } from "/lib/xp/repo";
+import { list as listApplications, type Application } from "/lib/xp/app";
+import { list as listProjects } from "/lib/xp/project";
 import { getSupportedLocales, localize } from "/lib/xp/i18n";
-import {
-  listComponents,
-  type ComponentDescriptorType,
-  type ComponentDescriptor,
-  type ListDynamicComponentsParams,
-} from "/lib/xp/schema";
 import { Locale, LanguageRange } from "/lib/time";
-import {
-  assertIsDefined,
-  forceArray,
-  getPartFinderUrl,
-  notNullOrUndefined,
-  runAsAdmin,
-  startsWith,
-} from "/lib/part-finder/utils";
+import { assertIsDefined, flatMap, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
 import { getComponentNavLinkList } from "../../views/navigation/navigation";
 import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
+import { queryAllRepos } from "/lib/part-finder/nodes";
+import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
 import type { ComponentList } from "./part-finder.freemarker";
 import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
 import type { Request, Response, SortDirection } from "@enonic-types/core";
+import type { Site } from "/lib/xp/content";
+import type { ComponentDescriptorType, ComponentDescriptor, ListDynamicComponentsParams } from "/lib/xp/schema";
 
 type PartFinderQueryParams = {
   params: {
@@ -40,7 +31,10 @@ const componentView = resolve("../../views/component-view/component-view.ftl");
 export function get(req: Request<PartFinderQueryParams>): Response {
   const currentItemType = parseComponentType(req.params.type);
   const currentItemKey = req.params.key;
-  const installedApps = listAppsWithComponents();
+  const projects = listProjects();
+  const cmsRepoIds = projects.map((project) => `com.enonic.cms.${project.id}`);
+  const installedApps = listAppsWithComponents(cmsRepoIds);
+
   const locale = getLocale(req);
   const title = localize({
     key: "part-finder.pageTitle",
@@ -70,7 +64,6 @@ export function get(req: Request<PartFinderQueryParams>): Response {
   }
 
   const currentAppKey = getAppKey(currentItemKey);
-  const cmsRepoIds = getCMSRepoIds();
   const currentItem = currentItemType
     ? getComponentUsagesInProjects(
         {
@@ -143,8 +136,24 @@ function getLocale(req: Request): string {
   return Locale.filterTags(languageRange, getSupportedLocales(["i18n/phrases"]))[0] ?? LOCALE_DEFAULT;
 }
 
-function listAppsWithComponents(): Application[] {
-  return runAsAdmin(() => listApps()).filter((app) => notNullOrUndefined(getFirstComponent(app)));
+function listAppsWithComponents(repoIds: string[]): Application[] {
+  const sites = queryAllRepos<Site<unknown>>(repoIds, {
+    count: 1000,
+    filters: {
+      hasValue: {
+        field: "type",
+        values: ["portal:site"],
+      },
+    },
+  });
+
+  const applicationsKeys = flatMap(sites, (site) =>
+    forceArray(site.data.siteConfig).map((config) => config.applicationKey),
+  );
+
+  return listApplications()
+    .filter((app) => applicationsKeys.indexOf(app.key) !== -1)
+    .filter((app) => notNullOrUndefined(getFirstComponent(app)));
 }
 
 function getFirstComponent(app: Application): ComponentDescriptor | undefined {
@@ -165,7 +174,7 @@ function getFirstComponent(app: Application): ComponentDescriptor | undefined {
 }
 
 function getFirstComponentAlphabetically(params: ListDynamicComponentsParams): ComponentDescriptor | undefined {
-  const components = runAsAdmin(() => listComponents(params));
+  const components = listComponentsAsAdmin(params);
   components.sort((a, b) => a.key.localeCompare(b.key));
   return components[0];
 }
@@ -176,14 +185,6 @@ function getAppKey(key: string): string {
 
 function wrapInHtml({ markup, title }: { markup: string; title: string }): string {
   return `<!DOCTYPE html><html lang="en"><head><title>${title}</title></head><body>${markup}</body></html>`;
-}
-
-function getCMSRepoIds(): string[] {
-  return runAsAdmin(() =>
-    listRepos()
-      .map((repo) => repo.id)
-      .filter((repoId) => startsWith(repoId, "com.enonic.cms")),
-  );
 }
 
 function parseComponentType(str: string = ""): ComponentDescriptorType | undefined {
