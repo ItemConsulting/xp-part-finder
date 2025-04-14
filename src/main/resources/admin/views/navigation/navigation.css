@@ -18,6 +18,10 @@
     text-decoration: none;
     color: currentColor;
 
+    > .key {
+      font-weight: bold;
+    }
+
     &[aria-current] {
       color: var(--color-neutral-background-default);
       background-color: var(--color-neutral-contrast-default);

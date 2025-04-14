@@ -1,12 +1,8 @@
 import { multiRepoConnect, type Aggregations, type DateBucket, type NumericBucket } from "/lib/xp/node";
-import {
-  ComponentDescriptorType,
-  LayoutDescriptor,
-  listComponents,
-  PageDescriptor,
-  PartDescriptor,
-} from "/lib/xp/schema";
-import { difference, getPartFinderUrl, runAsAdmin, startsWith } from "/lib/part-finder/utils";
+import { get as getContext } from "/lib/xp/context";
+import { difference, forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
+import type { ComponentDescriptorType, LayoutDescriptor, PageDescriptor, PartDescriptor } from "/lib/xp/schema";
 import type { ComponentNavLink, ComponentNavLinkList } from "./navigation.freemarker";
 
 type WithKey = {
@@ -37,9 +33,10 @@ export function getComponentNavLinkList(repoIds: string[], currentAppKey: string
 
   const connection = multiRepoConnect({
     sources: repoIds.map((repoId) => ({
-      repoId,
+      repoId, // Can we check against legal projects here first?
       branch: "draft",
-      principals: ["role:system.admin"],
+      principals: forceArray(getContext().authInfo?.principals),
+      // principals: ["role:system.admin"],
     })),
   });
 
@@ -76,12 +73,10 @@ function getComponentNavLinks(
   application: string,
   type: ComponentDescriptorType,
 ): ComponentNavLink[] {
-  const componentsWithSchema = runAsAdmin(() =>
-    listComponents({
-      type,
-      application,
-    }),
-  );
+  const componentsWithSchema = listComponentsAsAdmin({
+    type,
+    application,
+  });
 
   const unusedComponents = difference(componentsWithSchema, buckets, keysEqual).map((component) =>
     getComponentNavLink(component, type),

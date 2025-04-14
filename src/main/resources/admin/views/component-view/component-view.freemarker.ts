@@ -1,10 +1,16 @@
 export type ComponentView = {
   key: string;
-  contents: Usage[];
+  projects: SimpleProject[];
   headings: Heading[];
 };
 
 export type AriaSortDirection = "ascending" | "descending";
+
+export type SimpleProject = {
+  id: string;
+  displayName: string;
+  contents: Usage[];
+};
 
 export type Heading = {
   text: string;
@@ -18,10 +24,10 @@ export type ComponentViewParams = {
 };
 
 export type Usage = {
+  /* Using underscore to match with database key for sorting */
+  _path: string;
   url: string;
   displayName: string;
   type: string;
-  path: string;
-  projectId: string;
-  projectIconUrl: string;
+  typeIconUrl: string;
 };

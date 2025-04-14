@@ -14,6 +14,7 @@ export default {
 
 export const partFinder: StoryObj = {
   args: {
+    locale: "no",
     title: "Part finder - Part name",
     currentAppKey: header.args?.currentAppKey,
     filters: header.args?.filters,
