@@ -42,7 +42,7 @@
           </span>
         </td>
         <td class="name">${content.displayName}</td>
-        <td><a href="${content.url}" target="_top">${content._path}</a></td>
+        <td><a href="${content.url}" target="_blank">${content._path?replace("-", "&#8209;")?replace("/", "<wbr>/")}</a></td>
       </tr>
     [/#list]
     </tbody>
