@@ -6,10 +6,31 @@ const config: StorybookConfig = {
   },
   stories: ["../src/**/*.mdx", "../src/**/*.stories.ts"],
   addons: [
-    "@storybook/addon-webpack5-compiler-swc",
     "@storybook/addon-links",
     "@storybook/addon-essentials",
+    {
+      name: "@storybook/addon-styling-webpack",
+      options: {
+        rules: [
+          // Replaces existing CSS rules to support PostCSS
+          {
+            test: /\.css$/,
+            use: [
+              "style-loader",
+              {
+                loader: "css-loader",
+                options: { importLoaders: 1 },
+              },
+              {
+                loader: "postcss-loader",
+              },
+            ],
+          },
+        ],
+      },
+    },
     "@storybook/addon-a11y",
+    "@storybook/addon-webpack5-compiler-swc",
     "@itemconsulting/preset-enonic-xp",
   ],
   staticDirs: ["../src/main/resources/assets"],
