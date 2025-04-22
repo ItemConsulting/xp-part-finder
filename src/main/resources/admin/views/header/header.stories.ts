@@ -11,9 +11,10 @@ export default {
       id,
       params: {
         template: `
-        <div class="theme-brand1" style="background-color: var(--color-theme-base-default);">
-          [#include "${id}" /]
-        </div>
+          <div data-webtui-theme="\${theme!''}">
+            \${theme!"NOPE"}
+            [#include "${id}"]
+          </div>
         `,
       },
     },
@@ -22,7 +23,6 @@ export default {
 
 export const header: StoryObj<Header> = {
   args: {
-    locale: "no",
     currentAppKey: "no.item.www",
     filters: [
       {

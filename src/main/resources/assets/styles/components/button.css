@@ -1,0 +1,21 @@
+@layer components {
+  button[variant-="background1"],
+  [is-~="button"][variant-="background1"] {
+    text-decoration: none;
+
+    &[aria-current] {
+      --button-secondary: var(--sky);
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:active,
+    &:focus {
+      font-weight: var(--font-weight-normal);
+      --button-primary: var(--foreground0);
+      --button-secondary: var(--background0);
+    }
+  }
+}

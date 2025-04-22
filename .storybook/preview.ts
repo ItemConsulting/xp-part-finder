@@ -23,6 +23,26 @@ const preview: Preview = {
       },
     },
   },
+  globalTypes: {
+    locale: {
+      description: "Internationalization locale",
+      defaultValue: "no",
+      toolbar: {
+        icon: "globe",
+        items: [
+          { value: "no", right: "🇳🇴", title: "Norsk" },
+          { value: "en", right: "🇬🇧", title: "English" },
+        ],
+      },
+    },
+    theme: {
+      description: "Theme selector",
+      toolbar: {
+        icon: "circlehollow",
+        items: ["white", "catppuccin"],
+      },
+    },
+  },
 };
 
 export default preview;

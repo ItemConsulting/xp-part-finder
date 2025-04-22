@@ -1,41 +1,50 @@
 .navigation {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8);
-  padding-right: var(--spacing-32);
+  gap: 1lh;
+  align-items: start;
 
-  nav {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--spacing-32);
+  details {
+    align-self: stretch;
   }
 
   a {
-    padding: var(--spacing-8) var(--spacing-16);
-  }
-
-  a[href] {
+    color: var(--foreground0);
     text-decoration: none;
-    color: currentColor;
-
-    > .key {
-      font-weight: bold;
-    }
 
     &[aria-current] {
-      color: var(--color-neutral-background-default);
-      background-color: var(--color-neutral-contrast-default);
+      color: var(--sky);
+      background-color: var(--background1);
     }
 
     &:hover {
       text-decoration: underline;
     }
+
+    &:not([href]) {
+      text-decoration: line-through;
+      cursor: default;
+    }
+
+    .docCount {
+      float: right;
+      color: var(--foreground0);
+      background-color: var(--background0);
+    }
+
+    &:active,
+    &:focus {
+      background-color: var(--foreground0);
+      color: var(--background0);
+    }
+
+    .warning {
+      text-decoration: var(--red, currentcolor) wavy underline;
+      display: inline-block;
+    }
   }
 
-  .component-link {
-    padding-block: var(--spacing-8);
+  pre {
+    display: inline-block;
   }
 }
-
-
-

@@ -1,9 +1,26 @@
+[#-- @ftlvariable name="locale" type="String" --]
 [#-- @ftlvariable name="currentItem" type="Object" --]
 [#-- @ftlvariable name="currentItem.key" type="String" --]
 [#-- @ftlvariable name="currentItem.headings" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="currentItem.contents" type="java.util.ArrayList" --]
-<turbo-frame id="content-view">
-  <h2>${currentItem.key}</h2>
+
+[#import "../utils.ftl" as utils]
+
+<turbo-frame
+  id="content-view"
+  box-="square contain:!top"
+  class="component-view"
+  data-keyboard-focus-on="${utils.firstCharOfLocalized("part-finder.content", locale)}"
+  tabindex="-1">
+
+  <div class="space-between">
+    <span is-="badge" variant-="background0">
+      <div class="underline-first-letter">
+        [@localize key="part-finder.content" locale=locale /]
+      </div>
+    </span>
+    <span is-="badge" variant-="green" cap-="round">${currentItem.key}</span>
+  </div>
 
   [#list currentItem.projects![] as project]
     [@contentTable contents=project.contents project=project /]
@@ -11,8 +28,12 @@
 </turbo-frame>
 
 [#macro contentTable contents project]
-  <table class="table">
-    <caption class="label-big">${project.displayName} (${project.id})</caption>
+  <div is-="typography-block">
+  <h2>${project.displayName} <i>(${project.id})</i></h2>
+
+  </div>
+  <table class="table" is-="typography-block">
+    <caption class="label-big"></caption>
     <thead>
       <tr>
         [#list currentItem.headings as heading]

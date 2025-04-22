@@ -10,7 +10,9 @@ export default {
       params: {
         template: `
           [#import "/admin/views/navigation/navigation.ftl" as Navigation]
-          [@Navigation.render itemLists=itemLists /]
+          <div data-webtui-theme="\${theme!''}">
+            [@Navigation.render itemLists=itemLists /]
+          </div>
         `,
       },
     },
@@ -38,6 +40,7 @@ export const navigation: StoryObj<ComponentList> = {
             key: "no.item.starter:blocks-view",
             docCount: 1,
             url: "#",
+            warningKey: "part-finder.missing-schema",
           },
           {
             key: "no.item.starter:blocks-view",

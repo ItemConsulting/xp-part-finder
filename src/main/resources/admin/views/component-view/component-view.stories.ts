@@ -7,12 +7,21 @@ export default {
   parameters: {
     server: {
       id,
+      params: {
+        template: `
+          <div data-webtui-theme="\${theme!''}">
+            \${theme!"NOPE"}
+            [#include "${id}"]
+          </div>
+        `,
+      },
     },
   },
 } satisfies Meta<ComponentViewParams>;
 
 const componentArticleHeader: ComponentViewParams["currentItem"] = {
   key: "no.item.starter:article-header",
+  displayName: "Article header",
   headings: [
     {
       text: "Type",
@@ -42,7 +51,30 @@ const componentArticleHeader: ComponentViewParams["currentItem"] = {
           displayName: "Article",
           _path: "/testing/_templates/article",
           type: "portal:page",
-          typeIconUrl: "images/icon.svg",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
         },
       ],
     },

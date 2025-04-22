@@ -1,5 +1,6 @@
 export type ComponentView = {
   key: string;
+  displayName: string;
   projects: SimpleProject[];
   headings: Heading[];
 };
@@ -20,6 +21,7 @@ export type Heading = {
 };
 
 export type ComponentViewParams = {
+  locale: string;
   currentItem?: ComponentView;
 };
 
@@ -29,5 +31,4 @@ export type Usage = {
   url: string;
   displayName: string;
   type: string;
-  typeIconUrl: string;
 };

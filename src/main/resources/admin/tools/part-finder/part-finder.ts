@@ -7,7 +7,7 @@ import { assertIsDefined, flatMap, forceArray, getPartFinderUrl, notNullOrUndefi
 import { getComponentNavLinkList } from "../../views/navigation/navigation";
 import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
 import { queryAllRepos } from "/lib/part-finder/nodes";
-import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
+import { getComponentAsAdmin, listComponentsAsAdmin } from "/lib/part-finder/schemas";
 import type { ComponentList } from "./part-finder.freemarker";
 import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
@@ -69,6 +69,11 @@ export function get(req: Request<PartFinderQueryParams>): Response {
         {
           key: currentItemKey,
           type: currentItemType,
+          displayName:
+            getComponentAsAdmin({
+              key: currentItemKey,
+              type: currentItemType,
+            })?.displayName ?? "", //currentItem.displayName,
         },
         {
           field: req.params.sort ?? "_path",
@@ -90,6 +95,7 @@ export function get(req: Request<PartFinderQueryParams>): Response {
     return {
       body: wrapInHtml({
         markup: render<ComponentViewParams>(componentView, {
+          locale,
           currentItem,
         }),
         title,

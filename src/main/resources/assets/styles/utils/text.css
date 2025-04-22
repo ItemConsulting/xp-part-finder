@@ -1,0 +1,4 @@
+.underline-first-letter::first-letter {
+  text-decoration: underline;
+}
+

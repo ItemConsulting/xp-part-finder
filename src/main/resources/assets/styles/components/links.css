@@ -1,0 +1,15 @@
+@layer base {
+  a {
+    color: var(--foreground0);
+  }
+
+  a[aria-current] {
+    color: var(--sky);
+    background-color: var(--background1);
+  }
+}
+
+a:focus {
+  background-color: var(--foreground0);
+  color: var(--background0);
+}

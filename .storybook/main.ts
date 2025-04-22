@@ -4,7 +4,7 @@ const config: StorybookConfig = {
   typescript: {
     check: false,
   },
-  stories: ["../src/**/*.mdx", "../src/**/*.stories.ts"],
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.tsx", "../src/**/*.stories.ts"],
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",

@@ -1,0 +1,4 @@
+[box-][data-keyboard-focus-on][tabindex]:not(:focus-within) {
+  --box-border-color: var(--background1);
+}
+

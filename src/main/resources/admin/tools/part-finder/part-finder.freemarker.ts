@@ -3,5 +3,6 @@ import { ComponentNavLinkList } from "/admin/views/navigation/navigation.freemar
 export type ComponentList = {
   itemLists: ComponentNavLinkList[];
   currentItemKey?: string;
+  currentItemDisplayName?: string;
   currentAppKey?: string;
 };

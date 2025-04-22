@@ -1,41 +1,36 @@
 .part-finder {
-  --content-grid--padding-inline: var(--spacing-16);
-
   display: grid;
-  height: 100dvh;
   grid-template-areas:
-    ". header header ."
-    ". sidebar main .";
-  grid-template-columns: minmax(var(--content-grid--padding-inline), 1fr) min(420px, 33% - var(--content-grid--padding-inline) * 2) min(860px, 66% - var(--content-grid--padding-inline) * 2) minmax(var(--content-grid--padding-inline), 1fr);
-  grid-template-rows: fit-content(100px) auto;
-  column-gap: var(--spacing-32);
+    "header"
+    "sidebar"
+    "main";
+  grid-template-rows: auto 1fr;
+  column-gap: 1ch;
+  row-gap: 1lh;
+
+  @media (width > 1000px) {
+    height: 100dvh;
+    grid-template-columns: minmax(32ch, auto) 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar main";
+  }
 
   .layout--header {
-    --part-finder--header-background-color: var(--color-theme-base-default);
-
-    display: grid;
-    grid-column:  1 / span 4;
-    background-color: var(--part-finder--header-background-color);
-    grid-template-columns: subgrid;
-
-    .header {
-      grid-area: header;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      --part-finder--header-background-color: transparent;
-    }
+    grid-area: header;
   }
 
   .layout--nav {
     grid-area: sidebar;
     overflow-y: scroll;
-    padding-block: var(--spacing-32);
   }
 
   .layout--content {
     grid-area: main;
     overflow-y: scroll;
-    padding-block: var(--spacing-32);
   }
+}
+
+[data-webtui-theme] {
+  background-color: var(--background0);
 }

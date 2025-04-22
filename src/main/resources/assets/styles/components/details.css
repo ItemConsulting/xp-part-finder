@@ -1,0 +1,7 @@
+details summary {
+  color: var(--foreground0);
+  &:focus-visible {
+    background-color: var(--foreground0);
+    color: var(--background0);
+  }
+}

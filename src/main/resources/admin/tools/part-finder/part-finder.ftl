@@ -13,17 +13,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="view-transition" content="same-origin" />
 
-    <link rel="icon" href="[@assetUrl path='images/icon.svg'/]">
-    <link rel=”mask-icon” href=”[@assetUrl path='images/icon.svg'/]” color=”#000000">
-    <link rel="stylesheet" href="[@assetUrl path='styles/main.min.css'/]" />
-
-    <script type="module" src="[@assetUrl path='hotwired__turbo/8.0.13/dist/turbo.es2017-esm.js'/]"></script>
-    <script type="module" src="[@assetUrl path='scripts/move-aria-current-on-visit.mjs'/]"></script>
+    [#-- If not storybook --]
+    [#if !viewport?has_content]
+      <link rel="icon" href="[@assetUrl path='images/icon.svg'/]">
+      <link rel=”mask-icon” href=”[@assetUrl path='images/icon.svg'/]” color=”#000000">
+      <link rel="stylesheet" href="[@assetUrl path='styles/main.min.css'/]" />
+      <script type="module" src="[@assetUrl path='hotwired__turbo/8.0.13/dist/turbo.es2017-esm.js'/]"></script>
+      <script type="module" src="[@assetUrl path='scripts/move-aria-current-on-visit.mjs'/]"></script>
+      <script type="module" src="[@assetUrl path='scripts/select-box-on-key-press.mjs'/]"></script>
+    [/#if]
 
 		<title>${title}</title>
 	</head>
 	<body>
-    <div class="part-finder">
+    <select-box-on-key-press data-webtui-theme="${theme!"catppuccin"}" class="part-finder" tabindex="-1">
       <div class="layout--header theme-brand1">
         [#include "../../views/header/header.ftl"]
       </div>
@@ -37,6 +40,6 @@
           [#include "../../views/component-view/component-view.ftl"]
         [/#if]
       </div>
-    </div>
+    </select-box-on-key-press>
 	</body>
 </html>

@@ -16,7 +16,7 @@ const ARIA_SORT_DIRECTION: Record<SortDirection, AriaSortDirection> = {
 } as const;
 
 export function getComponentUsagesInProjects(
-  component: { key: string; type: string },
+  component: { key: string; type: string; displayName: string },
   sort: Required<FieldSortDsl>,
   locale: string,
 ): ComponentView {
@@ -24,6 +24,7 @@ export function getComponentUsagesInProjects(
 
   return {
     key: component.key,
+    displayName: component.displayName,
     projects: projects
       .map((project) => {
         return {
@@ -108,7 +109,6 @@ function getUsageObject(projectId: string, content: Content): Usage {
       ? content._path.substring(CONTENT_ROOT_PATH.length)
       : content._path,
     type: content.type,
-    typeIconUrl: `/admin/rest-v2/cs/schema/content/icon/${content.type}`,
   };
 }
 
