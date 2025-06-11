@@ -82,8 +82,8 @@
     "typescript-eslint": "^8.31.0"
   },
   "dependencies": {
-    "@webtui/css": "^0.0.3",
-    "@webtui/plugin-nf": "^0.0.1",
-    "@webtui/theme-catppuccin": "^0.0.2"
+    "@webtui/css": "^0.1.1",
+    "@webtui/plugin-nf": "^0.1.1",
+    "@webtui/theme-catppuccin": "^0.0.3"
   }
 }

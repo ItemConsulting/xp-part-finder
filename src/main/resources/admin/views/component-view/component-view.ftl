@@ -8,7 +8,8 @@
 
 <turbo-frame
   id="content-view"
-  box-="square contain:!top"
+  box-="square"
+  shear-="top"
   class="component-view"
   data-keyboard-focus-on="${utils.firstCharOfLocalized("part-finder.content", locale)}"
   tabindex="-1">
@@ -63,7 +64,11 @@
           </span>
         </td>
         <td class="name">${content.displayName}</td>
-        <td><a href="${content.url}" target="_blank">${content._path?replace("-", "&#8209;")?replace("/", "<wbr>/")}</a></td>
+        <td>
+          <a href="${content.url}" target="_blank">
+            ${content._path?replace("-", "&#8209;")?replace("/", "<wbr>/")}
+          </a>
+        </td>
       </tr>
     [/#list]
     </tbody>

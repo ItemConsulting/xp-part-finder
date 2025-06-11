@@ -11,7 +11,8 @@
 
 [#macro render itemLists currentItemKey=""]
   <move-aria-current-on-visit
-    box-="square contain:!top"
+    box-="square"
+    shear-="top"
     class="navigation"
     data-keyboard-focus-on="${utils.firstCharOfLocalized("part-finder.components", locale)}"
     tabindex="-1">

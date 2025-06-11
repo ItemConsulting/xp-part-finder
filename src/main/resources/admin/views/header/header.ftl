@@ -12,7 +12,8 @@
 
   [#if filters?size > 1]
     <div
-      box-="square contain:!top"
+      box-="square"
+      shear-="top"
       class="dimmed-unless-active"
       data-keyboard-focus-on="${utils.firstCharOfLocalized("part-finder.applications", locale)}"
       tabindex="-1">
