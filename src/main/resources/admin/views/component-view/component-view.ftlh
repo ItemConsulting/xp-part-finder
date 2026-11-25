@@ -1,9 +1,16 @@
+[#-- @ftlvariable name="locale" type="String" --]
 [#-- @ftlvariable name="currentItem" type="Object" --]
 [#-- @ftlvariable name="currentItem.key" type="String" --]
 [#-- @ftlvariable name="currentItem.headings" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="currentItem.contents" type="java.util.ArrayList" --]
 <turbo-frame id="content-view">
-  <h2>${currentItem.key}</h2>
+  <h2>
+    [#if currentItem.displayName?has_content]
+      ${currentItem.displayName} (${currentItem.key})
+    [#else]
+      ${currentItem.key}
+    [/#if]
+  </h2>
 
   [#list currentItem.projects![] as project]
     [@contentTable contents=project.contents project=project /]
@@ -38,11 +45,11 @@
         <td>
           <span title="${content.type}">
             [#-- Use non-breaking hyphen to prevent splitting to multiple lines --]
-            ${content.type?keep_after(":")?replace("-", "&#8209;")}
+            ${content.type?keep_after(":")?esc?markup_string?replace("-", "&#8209;")?no_esc}
           </span>
         </td>
         <td class="name">${content.displayName}</td>
-        <td><a href="${content.url}" target="_blank">${content._path?replace("-", "&#8209;")?replace("/", "<wbr>/")}</a></td>
+        <td><a href="${content.url}" target="_blank">${content._path?esc?markup_string?replace("-", "&#8209;")?replace("/", "<wbr>/")?no_esc}</a></td>
       </tr>
     [/#list]
     </tbody>

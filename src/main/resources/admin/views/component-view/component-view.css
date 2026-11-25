@@ -29,7 +29,7 @@ table.table {
   [aria-sort] > [aria-hidden="true"]::after {
     display: inline-block;
     margin-left: var(--spacing-8);
-    content: "▼"
+    content: "▼";
   }
 
   [aria-sort="ascending"] > [aria-hidden="true"]::after {

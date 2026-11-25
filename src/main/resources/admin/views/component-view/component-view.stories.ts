@@ -1,6 +1,6 @@
-import id from "./component-view.ftl";
 import type { Meta, StoryObj } from "@itemconsulting/xp-storybook-utils";
-import { ComponentViewParams } from "./component-view.freemarker";
+import type { ComponentViewParams } from "./component-view.freemarker";
+import id from "./component-view.ftlh";
 
 export default {
   title: "Components/Component View",
@@ -13,6 +13,7 @@ export default {
 
 const componentArticleHeader: ComponentViewParams["currentItem"] = {
   key: "no.item.starter:article-header",
+  displayName: "Article header",
   headings: [
     {
       text: "Type",
@@ -42,7 +43,30 @@ const componentArticleHeader: ComponentViewParams["currentItem"] = {
           displayName: "Article",
           _path: "/testing/_templates/article",
           type: "portal:page",
-          typeIconUrl: "images/icon.svg",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
+        },
+        {
+          url: "#",
+          displayName: "Article",
+          _path: "/testing/_templates/article",
+          type: "portal:page",
         },
       ],
     },

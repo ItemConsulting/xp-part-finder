@@ -1,4 +1,4 @@
-import id from "./header.ftl";
+import id from "./header.ftlh";
 import "./header.css";
 import type { Meta, StoryObj } from "@itemconsulting/xp-storybook-utils";
 import type { Header } from "./header.freemarker";
@@ -22,7 +22,6 @@ export default {
 
 export const header: StoryObj<Header> = {
   args: {
-    locale: "no",
     currentAppKey: "no.item.www",
     filters: [
       {

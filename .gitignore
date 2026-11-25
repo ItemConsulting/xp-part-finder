@@ -102,7 +102,6 @@ crashlytics-build.properties
 /coverage
 
 # ES lint
-/.eslintcache
 
 *storybook.log
 .env

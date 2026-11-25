@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("node:path");
 
 module.exports = (ctx) => {
   return {
@@ -9,7 +9,9 @@ module.exports = (ctx) => {
         path: [path.join(__dirname, "node_modules")],
       },
       "postcss-url": {
-        url: "copy",
+        // In webpack (Storybook), css-loader resolves the urls, so they only need to be
+        // rebased relative to the file they were inlined into by postcss-import
+        url: ctx.webpackLoaderContext ? "rebase" : "copy",
       },
       "postcss-reporter": {
         clearReportedMessages: true,

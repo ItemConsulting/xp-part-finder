@@ -1,5 +1,5 @@
-import type { Options as TsupOptions} from 'tsup';
+import type { Options as TsupOptions } from "tsup";
 
-export interface Options extends TsupOptions {
-	d?: string
+export declare interface Options extends TsupOptions {
+  d?: string;
 }

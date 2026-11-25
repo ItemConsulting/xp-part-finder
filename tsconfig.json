@@ -1,62 +1,53 @@
-{ // https://www.typescriptlang.org/tsconfig
-	"compilerOptions": {
-		//──────────────────────────────────────────────────────────────────────
-		// Modules
-		//──────────────────────────────────────────────────────────────────────
-		"allowUmdGlobalAccess": true,
-		"baseUrl": "./",
-    "module": "commonjs",
-		"moduleResolution": "node",
-    "strict": true,
-    "rootDirs": [
-      "./src/main/resources",
-      "./.xp-codegen"
+{
+  // This file should only include files that configures the build system.
+  // It should ignore all actual source files.
+
+  // Read more about tsconfig.json at:
+  // https://www.typescriptlang.org/tsconfig
+
+  // Specifies an array of filenames or patterns to include in the program.
+  // These filenames are resolved relative to the directory containing the
+  // tsconfig.json file.
+  "include": [
+    "*.ts",
+    "tsup/**/*.ts",
+    ".storybook/**/*.ts",
+    "src/**/*.stories.ts" // Storybook stories (the rest of src is covered by src/main/resources/tsconfig.json)
+  ],
+
+  // Specifies an array of filenames or patterns that should be skipped when
+  // resolving include.
+  // Important: exclude only changes which files are included as a result of
+  // the include setting. A file specified by exclude can still become part of
+  // your codebase due to an import statement in your code, a types inclusion,
+  // a /// <reference directive, or being specified in the files list.
+  // It is not a mechanism that prevents a file from being included in the
+  // codebase - it simply changes what the include setting finds.
+  "exclude": ["**/*.d.ts"],
+  "files": ["globals.d.ts"],
+
+  "compilerOptions": {
+    // Resolve XP-style absolute imports (e.g. "/admin/views/...") used by the stories
+    "paths": {
+      "/*": ["./src/main/resources/*"]
+    },
+
+    // Do NOT add this as it will resolve tsup to the local tsup folder, rather
+    // than the tsup node_module.
+    // "baseUrl": ".",
+    "skipLibCheck": true,
+    "noUncheckedSideEffectImports": false,
+    "lib": [
+      "es2023" // string.replaceAll
     ],
-    "types": ["@enonic-types/global", "@itemconsulting/xp-storybook-utils/global"],
-		"paths": {
-      "/lib/tineikt/freemarker": ["./node_modules/@item-enonic-types/lib-freemarker"],
-			"/lib/xp/*": ["./node_modules/@enonic-types/lib-*"],
-      "/lib/*": ["./src/main/resources/lib/*", "./node_modules/@item-enonic-types/lib-*"],
-      "/*": ["./src/main/resources/*","./.xp-codegen/*", "./node_modules/@item-enonic-types/lib-item-blocks/dist/*"], // So one can import local files using absolute path (same as Enonic does during runtime).
-		},
 
-
-		//──────────────────────────────────────────────────────────────────────
-		// Emit
-		//──────────────────────────────────────────────────────────────────────
-		// "declaration": true, // tsup overrides this
-		// "declarationDir": "build/types", // Doesn't work with tsup
-
-		//──────────────────────────────────────────────────────────────────────
-		// Interop Constraints
-		//──────────────────────────────────────────────────────────────────────
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-
-		//──────────────────────────────────────────────────────────────────────
-		// Language and Environment
-		//──────────────────────────────────────────────────────────────────────
-		"lib": [],
-
-		// We set target in tsup.config.ts instead
-		//"target": "ES3", // tsup WARNING Unrecognized target environment "ES3"
-		//"target": "ES5", // tsup Transforming const to the configured target environment ("ES5") is not supported yet
-
-		//──────────────────────────────────────────────────────────────────────
-		// Completeness
-		//──────────────────────────────────────────────────────────────────────
-		"skipLibCheck": true,
-	},
-	"exclude": [
-		"src/main/resources/assets/**/*.*",
-    "**/*.stories.ts"
-	],
-	"include": [
-		// Make sure default types matches Nashorn
-		"node_modules/typescript/lib/lib.es5.d.ts",
-
-		"src/main/resources/**/*.ts",
-    ".xp-codegen/**/*.d.ts",
-    ".storybook/**/*"
-  ]
+    // By default all visible ”@types” packages are included in your compilation.
+    // Packages in node_modules/@types of any enclosing folder are considered visible.
+    // For example, that means packages within ./node_modules/@types/,
+    // ../node_modules/@types/, ../../node_modules/@types/, and so on.
+    // If types is specified, only packages listed will be included in the global scope.
+    // This feature differs from typeRoots in that it is about specifying only the exact
+    // types you want included, whereas typeRoots supports saying you want particular folders.
+    "types": ["node", "@itemconsulting/xp-storybook-utils/global"]
+  }
 }

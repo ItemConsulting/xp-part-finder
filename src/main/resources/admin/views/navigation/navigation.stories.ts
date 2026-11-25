@@ -1,6 +1,6 @@
-import id from "./navigation.ftl";
 import type { Meta, StoryObj } from "@itemconsulting/xp-storybook-utils";
 import type { ComponentList } from "../../tools/part-finder/part-finder.freemarker";
+import id from "./navigation.ftlh";
 
 export default {
   title: "Components/Navigation",
@@ -9,7 +9,7 @@ export default {
       id,
       params: {
         template: `
-          [#import "/admin/views/navigation/navigation.ftl" as Navigation]
+          [#import "/admin/views/navigation/navigation.ftlh" as Navigation]
           [@Navigation.render itemLists=itemLists /]
         `,
       },
@@ -38,6 +38,7 @@ export const navigation: StoryObj<ComponentList> = {
             key: "no.item.starter:blocks-view",
             docCount: 1,
             url: "#",
+            warningKey: "part-finder.missing-schema",
           },
           {
             key: "no.item.starter:blocks-view",

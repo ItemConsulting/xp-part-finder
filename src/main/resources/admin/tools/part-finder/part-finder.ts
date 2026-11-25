@@ -1,19 +1,20 @@
-import { render } from "/lib/tineikt/freemarker";
-import { list as listApplications, type Application } from "/lib/xp/app";
-import { list as listProjects } from "/lib/xp/project";
-import { getSupportedLocales, localize } from "/lib/xp/i18n";
-import { Locale, LanguageRange } from "/lib/time";
-import { assertIsDefined, flatMap, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
-import { getComponentNavLinkList } from "../../views/navigation/navigation";
-import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
+import type { Request, Response, SortDirection } from "@enonic-types/core";
+import { assetUrl } from "/lib/enonic/asset";
+import { render } from "/lib/freemarker";
 import { queryAllRepos } from "/lib/part-finder/nodes";
-import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
-import type { ComponentList } from "./part-finder.freemarker";
+import { getComponentAsAdmin, listComponentsAsAdmin } from "/lib/part-finder/schemas";
+import { assertIsDefined, flatMap, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
+import { LanguageRange, Locale } from "/lib/time";
+import { type Application, list as listApplications } from "/lib/xp/app";
+import type { Site } from "/lib/xp/content";
+import { getSupportedLocales, localize } from "/lib/xp/i18n";
+import { list as listProjects } from "/lib/xp/project";
+import type { ComponentDescriptor, ComponentDescriptorType, ListDynamicComponentsParams } from "/lib/xp/schema";
+import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
 import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
-import type { Request, Response, SortDirection } from "@enonic-types/core";
-import type { Site } from "/lib/xp/content";
-import type { ComponentDescriptorType, ComponentDescriptor, ListDynamicComponentsParams } from "/lib/xp/schema";
+import { getComponentNavLinkList } from "../../views/navigation/navigation";
+import type { ComponentList } from "./part-finder.freemarker";
 
 type PartFinderQueryParams = {
   params: {
@@ -25,8 +26,8 @@ type PartFinderQueryParams = {
 };
 
 const LOCALE_DEFAULT = "en";
-const view = resolve("part-finder.ftl");
-const componentView = resolve("../../views/component-view/component-view.ftl");
+const view = resolve("part-finder.ftlh");
+const componentView = resolve("../../views/component-view/component-view.ftlh");
 
 export function get(req: Request<PartFinderQueryParams>): Response {
   const currentItemType = parseComponentType(req.params.type);
@@ -69,6 +70,11 @@ export function get(req: Request<PartFinderQueryParams>): Response {
         {
           key: currentItemKey,
           type: currentItemType,
+          displayName:
+            getComponentAsAdmin({
+              key: currentItemKey,
+              type: currentItemType,
+            })?.displayName ?? "",
         },
         {
           field: req.params.sort ?? "_path",
@@ -90,6 +96,7 @@ export function get(req: Request<PartFinderQueryParams>): Response {
     return {
       body: wrapInHtml({
         markup: render<ComponentViewParams>(componentView, {
+          locale,
           currentItem,
         }),
         title,
@@ -122,6 +129,9 @@ export function get(req: Request<PartFinderQueryParams>): Response {
       currentAppKey,
       currentItem,
       itemLists,
+      baseAssetUrl: assetUrl({
+        path: "",
+      }),
     }),
   };
 }
@@ -184,7 +194,16 @@ function getAppKey(key: string): string {
 }
 
 function wrapInHtml({ markup, title }: { markup: string; title: string }): string {
-  return `<!DOCTYPE html><html lang="en"><head><title>${title}</title></head><body>${markup}</body></html>`;
+  return `<!DOCTYPE html><html lang="en"><head><title>${escapeHtml(title)}</title></head><body>${markup}</body></html>`;
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function parseComponentType(str: string = ""): ComponentDescriptorType | undefined {

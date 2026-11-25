@@ -3,12 +3,18 @@ class MoveAriaCurrentOnVisit extends HTMLElement {
 
   connectedCallback() {
     this.allLinkEls = this.querySelectorAll("a[href]");
-    document.addEventListener("turbo:visit", (event) => {
-      if (event.detail.url) {
-        this.updateAriaSelected(event.detail.url);
-      }
-    });
+    document.addEventListener("turbo:visit", this.onVisit);
   }
+
+  disconnectedCallback() {
+    document.removeEventListener("turbo:visit", this.onVisit);
+  }
+
+  onVisit = (event) => {
+    if (event.detail.url) {
+      this.updateAriaSelected(event.detail.url);
+    }
+  };
 
   updateAriaSelected(newURL) {
     this.allLinkEls.forEach((el) => {

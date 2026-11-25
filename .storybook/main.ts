@@ -4,10 +4,9 @@ const config: StorybookConfig = {
   typescript: {
     check: false,
   },
-  stories: ["../src/**/*.mdx", "../src/**/*.stories.ts"],
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.tsx", "../src/**/*.stories.ts"],
   addons: [
     "@storybook/addon-links",
-    "@storybook/addon-essentials",
     {
       name: "@storybook/addon-styling-webpack",
       options: {
@@ -32,6 +31,7 @@ const config: StorybookConfig = {
     "@storybook/addon-a11y",
     "@storybook/addon-webpack5-compiler-swc",
     "@itemconsulting/preset-enonic-xp",
+    "@storybook/addon-docs",
   ],
   staticDirs: ["../src/main/resources/assets"],
   framework: {

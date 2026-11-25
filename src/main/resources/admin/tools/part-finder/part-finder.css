@@ -6,7 +6,11 @@
   grid-template-areas:
     ". header header ."
     ". sidebar main .";
-  grid-template-columns: minmax(var(--content-grid--padding-inline), 1fr) min(420px, 33% - var(--content-grid--padding-inline) * 2) min(860px, 66% - var(--content-grid--padding-inline) * 2) minmax(var(--content-grid--padding-inline), 1fr);
+  grid-template-columns:
+    minmax(var(--content-grid--padding-inline), 1fr)
+    min(420px, 33% - var(--content-grid--padding-inline) * 2)
+    min(860px, 66% - var(--content-grid--padding-inline) * 2)
+    minmax(var(--content-grid--padding-inline), 1fr);
   grid-template-rows: fit-content(100px) auto;
   column-gap: var(--spacing-32);
 
@@ -14,7 +18,7 @@
     --part-finder--header-background-color: var(--color-theme-base-default);
 
     display: grid;
-    grid-column:  1 / span 4;
+    grid-column: 1 / span 4;
     background-color: var(--part-finder--header-background-color);
     grid-template-columns: subgrid;
 

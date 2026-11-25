@@ -1,7 +1,7 @@
-import { multiRepoConnect, type Aggregations, type DateBucket, type NumericBucket } from "/lib/xp/node";
-import { get as getContext } from "/lib/xp/context";
-import { difference, forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
 import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
+import { difference, forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import { get as getContext } from "/lib/xp/context";
+import { type Aggregations, type DateBucket, multiRepoConnect, type NumericBucket } from "/lib/xp/node";
 import type { ComponentDescriptorType, LayoutDescriptor, PageDescriptor, PartDescriptor } from "/lib/xp/schema";
 import type { ComponentNavLink, ComponentNavLinkList } from "./navigation.freemarker";
 

@@ -21,7 +21,7 @@
   .header--toolbar {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-12)
+    gap: var(--spacing-12);
   }
 
   .header--nav-label {

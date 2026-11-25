@@ -1,11 +1,11 @@
-import { getToolUrl } from "/lib/xp/admin";
-import { get as getContext, run as runInContext } from "/lib/xp/context";
-import { list as listProjects } from "/lib/xp/project";
-import { query } from "/lib/xp/content";
-import { localize } from "/lib/xp/i18n";
-import { forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
-import type { AriaSortDirection, ComponentView, Heading, Usage } from "./component-view.freemarker";
 import type { Content, FieldSortDsl, SortDirection, SortDsl } from "@enonic-types/core";
+import { forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import { getToolUrl } from "/lib/xp/admin";
+import { query } from "/lib/xp/content";
+import { get as getContext, run as runInContext } from "/lib/xp/context";
+import { localize } from "/lib/xp/i18n";
+import { list as listProjects } from "/lib/xp/project";
+import type { AriaSortDirection, ComponentView, Heading, Usage } from "./component-view.freemarker";
 
 const CONTENT_ROOT_PATH = "/content";
 const TABLE_HEADINGS: (keyof Usage)[] = ["type", "displayName", "_path"];
@@ -16,7 +16,7 @@ const ARIA_SORT_DIRECTION: Record<SortDirection, AriaSortDirection> = {
 } as const;
 
 export function getComponentUsagesInProjects(
-  component: { key: string; type: string },
+  component: { key: string; type: string; displayName: string },
   sort: Required<FieldSortDsl>,
   locale: string,
 ): ComponentView {
@@ -24,6 +24,7 @@ export function getComponentUsagesInProjects(
 
   return {
     key: component.key,
+    displayName: component.displayName,
     projects: projects
       .map((project) => {
         return {
@@ -108,7 +109,6 @@ function getUsageObject(projectId: string, content: Content): Usage {
       ? content._path.substring(CONTENT_ROOT_PATH.length)
       : content._path,
     type: content.type,
-    typeIconUrl: `/admin/rest-v2/cs/schema/content/icon/${content.type}`,
   };
 }
 
