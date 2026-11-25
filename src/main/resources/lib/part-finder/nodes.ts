@@ -1,14 +1,23 @@
-import { notNullOrUndefined } from "/lib/part-finder/utils";
-import { connect, multiRepoConnect, type Node, type QueryNodeParams } from "/lib/xp/node";
+import { type Aggregations, multiRepoConnect } from "/lib/xp/node";
 
-export type QueryAllReposResponse<NodeData = Record<string, unknown>> = Node<NodeData & { projectId: string }>;
+/**
+ * Returns the keys of the applications that are added to a site in any of the given repos, with a single aggregation
+ * query.
+ *
+ * XP indexes the keys in lowercase, so the returned keys are lowercased.
+ */
+export function querySiteApplicationKeys(repoIds: string[]): string[] {
+  const aggregations = {
+    applications: {
+      terms: {
+        field: "data.siteConfig.applicationKey",
+        size: 1000,
+      },
+    },
+  } satisfies Aggregations;
 
-export function queryAllRepos<NodeData = Record<string, unknown>>(
-  repositories: string[],
-  queryParams: QueryNodeParams,
-): QueryAllReposResponse<NodeData>[] {
   const connection = multiRepoConnect({
-    sources: repositories.map((repoId) => ({
+    sources: repoIds.map((repoId) => ({
       repoId,
       branch: "draft",
       principals: ["role:system.admin"],
@@ -16,22 +25,15 @@ export function queryAllRepos<NodeData = Record<string, unknown>>(
   });
 
   return connection
-    .query(queryParams)
-    .hits.map(({ id, repoId }) => {
-      const content = connect({
-        branch: "draft",
-        repoId,
-        principals: ["role:system.admin"],
-      }).get<NodeData>(id);
-
-      if (!content) {
-        return null;
-      } else {
-        return {
-          ...content,
-          projectId: repoId.replace("com.enonic.cms.", ""),
-        };
-      }
+    .query<typeof aggregations>({
+      count: 0,
+      aggregations,
+      filters: {
+        hasValue: {
+          field: "type",
+          values: ["portal:site"],
+        },
+      },
     })
-    .filter(notNullOrUndefined);
+    .aggregations.applications.buckets.map((bucket) => bucket.key.toLowerCase());
 }

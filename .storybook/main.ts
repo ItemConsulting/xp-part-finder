@@ -1,42 +1,28 @@
-import type { StorybookConfig } from "@storybook/server-webpack5";
+import { fileURLToPath } from "node:url";
+import type { StorybookConfig } from "@itemconsulting/storybook-framework-enonic-xp";
+import { mergeConfig } from "vite";
 
 const config: StorybookConfig = {
-  typescript: {
-    check: false,
+  stories: ["../src/**/*.stories.ts"],
+  addons: ["@storybook/addon-links", "@storybook/addon-a11y", "@storybook/addon-docs"],
+  staticDirs: ["../src/main/resources/assets"],
+  framework: {
+    name: "@itemconsulting/storybook-framework-enonic-xp",
+    options: {},
   },
-  stories: ["../src/**/*.mdx", "../src/**/*.stories.tsx", "../src/**/*.stories.ts"],
-  addons: [
-    "@storybook/addon-links",
-    {
-      name: "@storybook/addon-styling-webpack",
-      options: {
-        rules: [
-          // Replaces existing CSS rules to support PostCSS
+  viteFinal: (viteConfig) =>
+    mergeConfig(viteConfig, {
+      resolve: {
+        alias: [
+          // main.css imports Designsystemet by its file path in node_modules, as postcss-import (used by the build)
+          // does. Vite resolves through the package's "exports", which map that path somewhere else.
           {
-            test: /\.css$/,
-            use: [
-              "style-loader",
-              {
-                loader: "css-loader",
-                options: { importLoaders: 1 },
-              },
-              {
-                loader: "postcss-loader",
-              },
-            ],
+            find: /^@digdir\/designsystemet-css\/dist\//,
+            replacement: fileURLToPath(new URL("../node_modules/@digdir/designsystemet-css/dist/", import.meta.url)),
           },
         ],
       },
-    },
-    "@storybook/addon-a11y",
-    "@storybook/addon-webpack5-compiler-swc",
-    "@itemconsulting/preset-enonic-xp",
-    "@storybook/addon-docs",
-  ],
-  staticDirs: ["../src/main/resources/assets"],
-  framework: {
-    name: "@storybook/server-webpack5",
-    options: {},
-  },
+    }),
 };
+
 export default config;

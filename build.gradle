@@ -1,64 +1,42 @@
 plugins {
-  id "java"
   id "maven-publish"
-  id "com.enonic.xp.app" version "3.6.1"
+  id "com.enonic.xp.app"
   id "com.github.node-gradle.node" version "7.1.0"
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-app {
-  name = "${appName}"
-  displayName = "${appDisplayName}"
-  vendorName = "${vendorName}"
-  vendorUrl = "${vendorUrl}"
-  systemVersion = "${xpVersion}"
-}
-
 dependencies {
-  compileOnly "com.enonic.xp:core-api:${xpVersion}"
-  compileOnly "com.enonic.xp:portal-api:${xpVersion}"
+  compileOnly xplibs.api.core
+  compileOnly xplibs.api.portal
 
-  include "com.enonic.xp:lib-admin:${xpVersion}"
-  include "com.enonic.xp:lib-auth:${xpVersion}"
-  include "com.enonic.xp:lib-app:${xpVersion}"
-  include "com.enonic.xp:lib-content:${xpVersion}"
-  include "com.enonic.xp:lib-context:${xpVersion}"
-  include "com.enonic.xp:lib-i18n:${xpVersion}"
-  include "com.enonic.xp:lib-node:${xpVersion}"
-  include "com.enonic.xp:lib-project:${xpVersion}"
-  include "com.enonic.xp:lib-schema:${xpVersion}"
-  include "com.enonic.lib:lib-asset:1.0.3"
-  include "no.item:lib-xp-time:1.6.1"
-  include "no.item:lib-xp-freemarker:3.0.0"
-  webjar "org.webjars.npm:hotwired__turbo:8.0.23"
+  include xplibs.admin
+  include xplibs.auth
+  include xplibs.app
+  include xplibs.content
+  include xplibs.context
+  include xplibs.i18n
+  include xplibs.node
+  include xplibs.project
+  include xplibs.schema
+  include libs.asset
+  include libs.xp.time
+  include libs.xp.freemarker
+  webjar libs.turbo
 }
 
 repositories {
   mavenCentral()
   xp.enonicRepo()
-  maven { url "https://repo.itemtest.no/releases" }
+  maven { url = "https://repo.itemtest.no/releases" }
 }
 
 node {
   download = true
-  version = "24.19.0"
+  // Single source of truth for the Node version, shared with .github/workflows and nvm
+  version = file(".nvmrc").text.trim()
 }
 
 tasks.withType(Copy).configureEach {
   includeEmptyDirs = false
-}
-
-tasks.register("dev", NpmTask) {
-  args = [
-    "run",
-    "watch"
-  ]
-  dependsOn npmInstall, deploy
-  environment = [
-    "FORCE_COLOR": "true",
-  ]
 }
 
 tasks.register("npmCheck", NpmTask) {
@@ -73,7 +51,7 @@ tasks.register("npmCheck", NpmTask) {
 }
 
 // If you ALWAYS want to SKIP `test` and `check` tasks on development build, wrap this inside an "if..."
-// if (!(project.hasProperty("dev") || project.hasProperty("development"))) {
+// if (project.findProperty("env") != "dev") {
 check.dependsOn npmCheck
 // }
 
@@ -87,10 +65,15 @@ tasks.register("npmBuild", NpmTask) {
   environment = [
     "FORCE_COLOR": "true",
     "LOG_LEVEL_FROM_GRADLE": gradle.startParameter.logLevel.toString(),
-    "NODE_ENV": project.hasProperty("dev") || project.hasProperty("development") ? "development" : "production"
   ]
   inputs.dir "src/main/resources"
-  outputs.dir "build/resources/main"
+  inputs.files "package-lock.json", "tsdown.config.mts", "postcss.config.js", "src/main/resources/tsconfig.json"
+  // Only the files that tsdown and postcss write. processResources writes to the same directory, and Gradle never
+  // considers a task up to date if another task writes into its outputs.
+  outputs.files fileTree("build/resources/main") {
+    include "**/*.js"
+    include "assets/styles/main.min.css*"
+  }
 }
 
 jar.dependsOn npmBuild
@@ -116,9 +99,9 @@ publishing {
   publications {
     maven(MavenPublication) {
       from components.java
-      groupId group
-      artifactId projectName
-      version version
+      groupId = group
+      artifactId = projectName
+      version = project.version
     }
   }
 }

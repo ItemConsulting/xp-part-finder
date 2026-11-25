@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@itemconsulting/xp-storybook-utils";
+import type { Meta, StoryObj } from "@storybook/server";
 import type { ComponentViewParams } from "./component-view.freemarker";
 import id from "./component-view.ftlh";
 

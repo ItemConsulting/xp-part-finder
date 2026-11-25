@@ -1,15 +1,11 @@
 /// <reference lib="dom" />
-import { DEFAULT_XP_SERVER, type Preview } from "@itemconsulting/xp-storybook-utils";
+import type { Preview } from "@itemconsulting/storybook-framework-enonic-xp";
 import "../src/main/resources/assets/styles/main.css";
 
 document.documentElement.dataset.colorScheme = "auto";
 
 const preview: Preview = {
   parameters: {
-    server: {
-      ...DEFAULT_XP_SERVER,
-      url: process.env.STORYBOOK_SERVER_URL || DEFAULT_XP_SERVER.url,
-    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

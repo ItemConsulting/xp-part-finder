@@ -5,8 +5,9 @@ admin tool that lists usage of your components (parts, layouts, pages) to help y
 
 ![Build badge](https://github.com/ItemConsulting/xp-part-finder/actions/workflows/main.yml/badge.svg)
 [![](https://repo.itemtest.no/api/badge/latest/releases/no/item/xp-part-finder)](https://repo.itemtest.no/#/releases/no/item/xp-part-finder)
+![Enonic XP8 badge](https://market.enonic.com/badges/xp8.svg)
 
-![Part finder icon](./src/main/resources/application.svg)
+![Part finder icon](./src/main/resources/enonic.svg)
 
 ## Roles
 
@@ -24,27 +25,26 @@ Install npm-dependencies
 npm install
 ```
 
-To prepare the Storybook-environment you need to create a _.env_ file. The easiest way is to copy over the existing
-_.env_example_ file.
-
-```bash
-cp .env_example .env
-```
-
-> [!IMPORTANT]
-> Make sure `STORYBOOK_SERVER_URL` in _.env_ matches a valid service path in **your** local XP setup.
-
 ## Running storybook
 
 To make development easier and quicker, pages, layouts, parts and Freemarker-macros have Storybook-stories that let us
 get immediate feedback when developing.
 
-To be able to run Storybook locally you need to install [xp-storybook](https://github.com/ItemConsulting/xp-storybook)
-in your local sandbox. When it is installed, you can run storybook locally with the following command:
+Storybook uses [storybook-framework-enonic-xp](https://github.com/ItemConsulting/storybook-framework-enonic-xp), which
+renders the templates in the running XP sandbox. To run it locally:
 
-```bash
-npm run storybook
-```
+1. Install [xp-storybook](https://github.com/ItemConsulting/xp-storybook) in your local sandbox.
+2. Deploy this app in dev mode, so that edited templates are served without a rebuild:
+
+   ```bash
+   enonic project dev
+   ```
+
+3. Start Storybook:
+
+   ```bash
+   npm run storybook
+   ```
 
 ## Building
 
@@ -67,5 +67,5 @@ enonic project deploy
 ## Deploy to Maven
 
 ```bash
-./gradlew publish -P com.enonic.xp.app.production=true
+./gradlew publish
 ```

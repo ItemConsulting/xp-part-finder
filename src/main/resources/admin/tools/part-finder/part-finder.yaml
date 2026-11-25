@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://www.schemastore.org/enonic-xp-admin-tool-8.0.0.json
+kind: "AdminTool"
+title:
+  text: "Part finder"
+  i18n: "part-finder.displayName"
+description:
+  text: "See where your parts are used!"
+  i18n: "part-finder.description"
+allow:
+  - "role:system.admin"
+  - "role:no.item.partfinder.viewer"
+apis:
+  # Mounted by lib-asset, which serves the files in assets/ (including the turbo webjar)
+  - "asset"

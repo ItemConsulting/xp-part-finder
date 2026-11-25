@@ -29,7 +29,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
 
-      # build.gradle compiles for Java 17 (XP 7). The version is read from .java-version.
+      # XP 8 runs on Java 25, which the XP Gradle plugin sets as the toolchain. The version is read from .java-version.
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
@@ -41,7 +41,7 @@ jobs:
       # the `npm install` Gradle runs through npmInstall would silently repair.
       - run: npm ci
 
-      # Runs check (biome + tsc, via npmCheck), runs tsup and postcss (via npmBuild) and builds the jar.
+      # Runs check (biome + tsc, via npmCheck), runs tsdown and postcss (via npmBuild) and builds the jar.
       # The previous workflow ran only `npm run lint && npm run build`, so the type checker never saw a commit.
       - run: ./gradlew build
 
