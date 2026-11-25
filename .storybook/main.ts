@@ -10,7 +10,11 @@ const config: StorybookConfig = {
       options: {
         port: Number(process.env.WEBSTORM_ADDON_STORYBOOK_SYNC_PORT) || undefined,
       },
-    },"@storybook/addon-links", "@storybook/addon-a11y", "@storybook/addon-docs"],
+    },
+    "@storybook/addon-links",
+    "@storybook/addon-a11y",
+    "@storybook/addon-docs",
+  ],
   staticDirs: ["../src/main/resources/assets"],
   framework: {
     name: "@itemconsulting/storybook-framework-enonic-xp",

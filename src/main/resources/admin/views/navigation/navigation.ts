@@ -1,13 +1,22 @@
-import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
+import type { AppBlocks, BlockUsageBucket } from "/lib/part-finder/blocks";
 import { difference, forceArray, getPartFinderUrl, indexBy, startsWith } from "/lib/part-finder/utils";
 import { get as getContext } from "/lib/xp/context";
 import { type Aggregations, type DateBucket, multiRepoConnect, type NumericBucket } from "/lib/xp/node";
-import type { ComponentDescriptorType, LayoutDescriptor, PageDescriptor, PartDescriptor } from "/lib/xp/schema";
+import type { ComponentDescriptorType } from "/lib/xp/schema";
 import type { ComponentNavLink, ComponentNavLinkList } from "./navigation.freemarker";
 
 type WithKey = {
   key: string;
 };
+
+type WithDocCount = WithKey & {
+  docCount: number;
+};
+
+/**
+ * The types of items in the navigation: component types, and blocks from the blocks library
+ */
+export type NavItemType = ComponentDescriptorType | "BLOCK";
 
 type UsageBucket = DateBucket | NumericBucket;
 
@@ -82,7 +91,7 @@ export function getAppUsages(buckets: UsageBucket[], appKey: string): UsageBucke
  * "my.app:myPart"). Replaces each bucket key with the key of the component schema that matches it case-insensitively,
  * to restore the original casing. Buckets without a matching schema keep their key.
  */
-export function withSchemaKeys(buckets: UsageBucket[], components: WithKey[]): UsageBucket[] {
+export function withSchemaKeys<Bucket extends WithKey>(buckets: Bucket[], components: WithKey[]): Bucket[] {
   const componentsByLowerCaseKey = indexBy(components, (component) => component.key.toLowerCase());
 
   return buckets.map((bucket) => {
@@ -91,63 +100,81 @@ export function withSchemaKeys(buckets: UsageBucket[], components: WithKey[]): U
   });
 }
 
-export function getComponentNavLinkList(usages: ComponentUsages, currentAppKey: string): ComponentNavLinkList[] {
+/**
+ * Lists the parts, layouts and pages of the application. Pass in the components of the application, that are already
+ * listed by the caller.
+ */
+export function getComponentNavLinkList(
+  usages: ComponentUsages,
+  currentAppKey: string,
+  componentsByType: Record<ComponentDescriptorType, WithKey[]>,
+): ComponentNavLinkList[] {
   return [
     {
       title: "Parts",
-      items: getComponentNavLinks(getAppUsages(usages.PART, currentAppKey), currentAppKey, "PART"),
+      items: getNavLinks(getAppUsages(usages.PART, currentAppKey), componentsByType.PART, "PART"),
     },
     {
       title: "Layouts",
-      items: getComponentNavLinks(getAppUsages(usages.LAYOUT, currentAppKey), currentAppKey, "LAYOUT"),
+      items: getNavLinks(getAppUsages(usages.LAYOUT, currentAppKey), componentsByType.LAYOUT, "LAYOUT"),
     },
     {
       title: "Pages",
-      items: getComponentNavLinks(getAppUsages(usages.PAGE, currentAppKey), currentAppKey, "PAGE"),
+      items: getNavLinks(getAppUsages(usages.PAGE, currentAppKey), componentsByType.PAGE, "PAGE"),
     },
-  ].filter((list) => list.items.length > 0);
+  ].filter(hasItems);
 }
 
-function getComponentNavLinks(
-  appUsages: UsageBucket[],
-  application: string,
-  type: ComponentDescriptorType,
-): ComponentNavLink[] {
-  const componentsWithSchema = listComponentsAsAdmin({
-    type,
-    application,
-  });
-  const buckets = withSchemaKeys(appUsages, componentsWithSchema);
-
-  const unusedComponents = difference(componentsWithSchema, buckets, keysEqual).map((component) =>
-    getComponentNavLink(component, type),
-  );
-
-  const componentsUsedInContent = buckets.map((componentInContent) =>
-    getComponentNavLink(
-      componentInContent,
-      type,
-      includesKey(componentsWithSchema, componentInContent) ? undefined : "part-finder.missing-schema",
+/**
+ * Lists the blocks of an application from the blocks library. Returns undefined if there are none.
+ */
+export function getBlockNavLinkList(
+  appBlocks: AppBlocks,
+  blockUsages: BlockUsageBucket[],
+): ComponentNavLinkList | undefined {
+  const list = {
+    title: "Blocks",
+    items: getNavLinks(
+      blockUsages,
+      appBlocks.blocks.map((block) => ({ key: `${appBlocks.appKey}:${block.name}` })),
+      "BLOCK",
     ),
-  );
+  };
 
-  const links = [...componentsUsedInContent, ...unusedComponents];
-
-  links.sort((x, y) => x.key.localeCompare(y.key));
-
-  return links;
+  return hasItems(list) ? list : undefined;
 }
 
-function getComponentNavLink(
-  component: UsageBucket | PartDescriptor | LayoutDescriptor | PageDescriptor,
-  type: ComponentDescriptorType,
+function hasItems(list: ComponentNavLinkList): boolean {
+  return list.items.length > 0;
+}
+
+/**
+ * Lists both the items used in content (with a warning if they no longer have a schema) and the unused ones,
+ * alphabetically
+ */
+function getNavLinks(usages: WithDocCount[], itemsWithSchema: WithKey[], type: NavItemType): ComponentNavLink[] {
+  const buckets = withSchemaKeys(usages, itemsWithSchema);
+
+  const unusedItems = difference(itemsWithSchema, buckets, keysEqual).map((item) => getNavLink(item, type));
+
+  const itemsUsedInContent = buckets.map((bucket) =>
+    getNavLink(bucket, type, includesKey(itemsWithSchema, bucket) ? undefined : "part-finder.missing-schema"),
+  );
+
+  return [...itemsUsedInContent, ...unusedItems].sort((x, y) => x.key.localeCompare(y.key));
+}
+
+function getNavLink(
+  item: WithKey | WithDocCount,
+  type: NavItemType,
   warningKey?: string | undefined,
 ): ComponentNavLink {
   return {
-    docCount: "docCount" in component ? component.docCount : 0,
-    key: component.key,
+    docCount: "docCount" in item ? item.docCount : 0,
+    key: item.key,
+    type,
     url: getPartFinderUrl({
-      key: component.key,
+      key: item.key,
       type,
     }),
     warningKey,

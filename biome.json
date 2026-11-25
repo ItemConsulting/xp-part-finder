@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!.changeset", "!src/main/resources/assets/styles/theme.css", "!**/tsconfig.json"]
+    "includes": ["**", "!.changeset", "!.claude", "!src/main/resources/assets/styles/theme.css", "!**/tsconfig.json"]
   },
   "formatter": {
     "enabled": true,

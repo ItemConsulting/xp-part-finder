@@ -46,12 +46,12 @@ export function startsWith(str: string, searchString: string): boolean {
   return str.substring(0, searchString.length) === searchString;
 }
 
-export function flatMap<A, B>(arr: A[], f: (val: A) => B[]): B[] {
+export function flatMap<A, B>(arr: A[], f: (val: A, index: number) => B[]): B[] {
   // For performance reasons we use a for-loop here, instead of array methods (see "Functional programming" in AGENTS.md)
   const result: B[] = [];
 
   for (let i = 0; i < arr.length; i++) {
-    const values = f(arr[i]);
+    const values = f(arr[i], i);
 
     for (let j = 0; j < values.length; j++) {
       result.push(values[j]);
@@ -71,6 +71,20 @@ export function indexBy<A>(arr: A[], getKey: (val: A) => string): Record<string,
 
   for (let i = 0; i < arr.length; i++) {
     result[getKey(arr[i])] = arr[i];
+  }
+
+  return result;
+}
+
+/**
+ * Creates an object from a list of key-value pairs (like `Object.fromEntries`, which Nashorn does not have)
+ */
+export function fromEntries<A>(entries: [string, A][]): Record<string, A> {
+  // For performance reasons we use a for-loop here, instead of array methods (see "Functional programming" in AGENTS.md)
+  const result: Record<string, A> = {};
+
+  for (let i = 0; i < entries.length; i++) {
+    result[entries[i][0]] = entries[i][1];
   }
 
   return result;

@@ -3,6 +3,7 @@ import type { ComponentNavLinkList } from "/admin/views/navigation/navigation.fr
 export type ComponentList = {
   itemLists: ComponentNavLinkList[];
   currentItemKey?: string;
+  currentItemType?: string;
   currentAppKey?: string;
   baseAssetUrl: string;
 };
