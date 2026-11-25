@@ -18,6 +18,7 @@ import {
   getAppUsages,
   getComponentNavLinkList,
   queryComponentUsages,
+  withSchemaKeys,
 } from "../../views/navigation/navigation";
 import type { ComponentList } from "./part-finder.freemarker";
 
@@ -30,6 +31,7 @@ type AppWithComponents = {
   app: Application;
   componentCount: number;
   firstComponent: ComponentRef;
+  componentsByType: Record<ComponentDescriptorType, ComponentDescriptor[]>;
 };
 
 type PartFinderQueryParams = {
@@ -200,6 +202,11 @@ function getAppWithComponents(app: Application): AppWithComponents | undefined {
         app,
         componentCount: componentsByType.reduce((sum, components) => sum + components.length, 0),
         firstComponent,
+        componentsByType: {
+          PART: componentsByType[0],
+          LAYOUT: componentsByType[1],
+          PAGE: componentsByType[2],
+        },
       }
     : undefined;
 }
@@ -209,17 +216,23 @@ function getAppWithComponents(app: Application): AppWithComponents | undefined {
  * component in the application
  */
 function getStartComponent(appWithComponents: AppWithComponents, usages: ComponentUsages): ComponentRef {
-  return getFirstUsedComponent(appWithComponents.app.key, usages) ?? appWithComponents.firstComponent;
+  return getFirstUsedComponent(appWithComponents, usages) ?? appWithComponents.firstComponent;
 }
 
 /**
  * Returns the first component (alphabetically, in the order parts, layouts, pages) of the application that is used in
  * content
  */
-function getFirstUsedComponent(appKey: string, usages: ComponentUsages): ComponentRef | undefined {
+function getFirstUsedComponent(
+  { app, componentsByType }: AppWithComponents,
+  usages: ComponentUsages,
+): ComponentRef | undefined {
   return COMPONENT_TYPES.map((type) =>
     getFirstAlphabetically(
-      getAppUsages(usages[type], appKey).map<ComponentRef>((bucket) => ({ key: bucket.key, type })),
+      withSchemaKeys(getAppUsages(usages[type], app.key), componentsByType[type]).map<ComponentRef>((bucket) => ({
+        key: bucket.key,
+        type,
+      })),
     ),
   ).filter(notNullOrUndefined)[0];
 }
