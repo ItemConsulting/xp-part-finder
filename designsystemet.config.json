@@ -1,0 +1,59 @@
+{
+  "$schema": "https://designsystemet.no/schemas/config/1.24.1.json",
+  "output": [
+    {
+      "type": "css",
+      "dir": "./src/main/resources/assets/styles"
+    }
+  ],
+  "themes": {
+    "theme": {
+      "colors": {
+        "accent": "#8812e2",
+        "brand1": "#0b3c49",
+        "brand2": "#0affd2",
+        "neutral": "#000814",
+        "info": "#0A71C0",
+        "success": "#068718",
+        "warning": "#EA9B1B",
+        "danger": "#C01B1B"
+      },
+      "overrides": {
+        "colors": {
+          "neutral": {
+            "background-default": {
+              "dark": "#000814"
+            },
+            "text-default": {
+              "light": "#000814",
+              "dark": "#ffffff"
+            },
+            "border-subtle": {
+              "light": "#92969a",
+              "dark": "#92969a"
+            },
+            "base-default": {
+              "dark": "#ffffff"
+            },
+            "base-contrast-default": {
+              "dark": "#000814"
+            }
+          },
+          "accent": {
+            "base-default": {
+              "dark": "#0affd2"
+            }
+          },
+          "brand1": {
+            "base-default": {
+              "dark": "#0d1420"
+            },
+            "base-contrast-default": {
+              "dark": "#ffffff"
+            }
+          }
+        }
+      }
+    }
+  }
+}

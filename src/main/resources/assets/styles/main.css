@@ -1,6 +1,8 @@
-@import "reset.css";
+@layer my-reset, ds;
+
+@import "reset.css" layer(my-reset);
+@import "@digdir/designsystemet-css/dist/src/index.css";
 @import "core.css";
-@import "colors.css";
 @import "theme.css";
 @import "utils/label.css";
 @import "utils/icons.css";
@@ -10,7 +12,7 @@
 @import "../../admin/tools/part-finder/part-finder.css";
 
 a[href]:not([class]) {
-  color: var(--color-accent-base-default);
+  color: var(--ds-color-accent-base-default);
 }
 
 a:not([href]) {

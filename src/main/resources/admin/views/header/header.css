@@ -1,9 +1,9 @@
 .header {
   display: flex;
   flex-direction: column;
-  color: var(--color-theme-contrast-default);
-  padding-block: var(--spacing-16);
-  gap: var(--spacing-16);
+  color: var(--ds-color-base-contrast-default);
+  padding-block: var(--ds-size-4);
+  gap: var(--ds-size-4);
 
   h1:before {
     content: "";
@@ -15,37 +15,38 @@
     height: 1em;
     width: 1em;
     transform: translateY(4px);
-    margin-right: var(--spacing-8);
+    margin-right: var(--ds-size-2);
   }
 
   .header--toolbar {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-12);
+    gap: var(--ds-size-3);
   }
 
   .header--nav-label {
-    font-size: var(--font-size-small);
-    font-weight: bold;
+    font-size: var(--ds-body-xs-font-size);
+    line-height: var(--ds-body-xs-line-height);
+    letter-spacing: var(--ds-body-xs-letter-spacing);
+    font-weight: var(--ds-font-weight-semibold);
   }
 
   .header--filters {
     display: flex;
     flex-direction: row;
-    gap: var(--spacing-16);
-    margin-bottom: var(--spacing-16);
+    gap: var(--ds-size-4);
+    margin-bottom: var(--ds-size-4);
   }
 }
 
-a.pill {
-  --pill--color: var(--color-theme-text-default);
-  --pill--color-background: transparent;
-  border-radius: 30px;
-  padding: 2px 20px;
-  color: var(--pill--color);
-  background-color: var(--pill--color-background);
-  border: 1px solid var(--pill--color);
-  text-decoration: none;
+/* Outlined chip variant, matching the former .pill styling */
+.ds-chip[data-variant="outline"] {
+  --dsc-chip-color: var(--ds-color-base-contrast-default);
+  --dsc-chip-background: transparent;
+  --dsc-chip-background--hover: var(--dsc-chip-background);
+  --dsc-chip-background--active: var(--dsc-chip-background);
+  --dsc-chip-border-color: currentColor;
+  --dsc-chip-padding-inline: var(--ds-size-5);
   transition: transform 100ms ease-in-out;
 
   &:hover {
@@ -57,8 +58,8 @@ a.pill {
   }
 
   &[aria-current] {
-    --pill--color-background: var(--color-theme-contrast-default);
-    --pill--color: var(--color-theme-base-default);
-    border: 0;
+    --dsc-chip-color: var(--ds-color-base-default);
+    --dsc-chip-background: var(--ds-color-base-contrast-default);
+    --dsc-chip-border-color: transparent;
   }
 }

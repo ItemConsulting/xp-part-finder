@@ -1,25 +1,47 @@
-table.table {
-  border-collapse: collapse;
-  border: 1px solid var(--color-black-contrast-2);
-  width: 100%;
+.ds-table {
+  --dsc-table-vertical-align: top;
 
-  caption {
-    text-align: left;
-  }
+  /* Only as wide as the content needs, between half and all of the available width */
+  width: auto;
+  min-width: 50%;
 
-  th,
   td {
-    text-align: left;
-    border: 1px solid var(--color-black-contrast-2);
-    padding: var(--spacing-8) var(--spacing-16);
+    /*
+      Cap the widths of the text columns. Table cells ignore max-width, so it is set on the
+      content instead, which limits how wide the column wants to be.
+    */
+    /* Fits common types like "page-template", so the column width stays stable between pages */
+    &.type {
+      min-width: 15ch;
+    }
 
     &.name {
       min-width: 160px;
+
+      > span {
+        display: block;
+        max-width: 30ch;
+      }
+    }
+
+    /* Prefer breaking at "/" (<wbr>), but break long slugs anywhere rather than overflow */
+    &.path {
+      overflow-wrap: anywhere;
+
+      > a {
+        display: inline-block;
+        max-width: 40ch;
+      }
     }
 
     img {
       width: 24px;
     }
+  }
+
+  /* designsystemet removes padding from sortable headers, expecting a full-size button inside */
+  > thead > tr > [aria-sort] {
+    padding: var(--dsc-table-padding);
   }
 
   .sort-link {
@@ -28,7 +50,7 @@ table.table {
 
   [aria-sort] > [aria-hidden="true"]::after {
     display: inline-block;
-    margin-left: var(--spacing-8);
+    margin-left: var(--ds-size-2);
     content: "▼";
   }
 

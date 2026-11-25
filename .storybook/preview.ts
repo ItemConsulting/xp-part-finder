@@ -1,5 +1,8 @@
+/// <reference lib="dom" />
 import { DEFAULT_XP_SERVER, type Preview } from "@itemconsulting/xp-storybook-utils";
 import "../src/main/resources/assets/styles/main.css";
+
+document.documentElement.dataset.colorScheme = "auto";
 
 const preview: Preview = {
   parameters: {

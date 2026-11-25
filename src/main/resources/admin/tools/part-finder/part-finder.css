@@ -1,30 +1,21 @@
 .part-finder {
-  --content-grid--padding-inline: var(--spacing-16);
+  --part-finder--padding-inline: var(--ds-size-8);
 
   display: grid;
   height: 100dvh;
   grid-template-areas:
-    ". header header ."
-    ". sidebar main .";
-  grid-template-columns:
-    minmax(var(--content-grid--padding-inline), 1fr)
-    min(420px, 33% - var(--content-grid--padding-inline) * 2)
-    min(860px, 66% - var(--content-grid--padding-inline) * 2)
-    minmax(var(--content-grid--padding-inline), 1fr);
+    "header header"
+    "sidebar main";
+  grid-template-columns: minmax(272px, 352px) minmax(0, 1fr);
   grid-template-rows: fit-content(100px) auto;
-  column-gap: var(--spacing-32);
+  column-gap: var(--ds-size-8);
 
   .layout--header {
-    --part-finder--header-background-color: var(--color-theme-base-default);
+    --part-finder--header-background-color: var(--ds-color-base-default);
 
-    display: grid;
-    grid-column: 1 / span 4;
+    grid-area: header;
+    padding-inline: var(--part-finder--padding-inline);
     background-color: var(--part-finder--header-background-color);
-    grid-template-columns: subgrid;
-
-    .header {
-      grid-area: header;
-    }
 
     @media (prefers-color-scheme: dark) {
       --part-finder--header-background-color: transparent;
@@ -34,12 +25,14 @@
   .layout--nav {
     grid-area: sidebar;
     overflow-y: scroll;
-    padding-block: var(--spacing-32);
+    padding-block: var(--ds-size-8);
+    padding-inline-start: var(--part-finder--padding-inline);
   }
 
   .layout--content {
     grid-area: main;
     overflow-y: scroll;
-    padding-block: var(--spacing-32);
+    padding-block: var(--ds-size-8);
+    padding-inline-end: var(--part-finder--padding-inline);
   }
 }

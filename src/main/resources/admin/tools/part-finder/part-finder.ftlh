@@ -9,7 +9,7 @@
 [#import "../../views/navigation/navigation.ftlh" as Navigation]
 
 <!DOCTYPE html>
-<html lang="${locale}">
+<html lang="${locale}" data-color-scheme="auto">
 	<head>
 		<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,7 +28,7 @@
 	</head>
 	<body>
     <div class="part-finder">
-      <div class="layout--header theme-brand1">
+      <div class="layout--header" data-color="brand1">
         [#include "../../views/header/header.ftlh"]
       </div>
 

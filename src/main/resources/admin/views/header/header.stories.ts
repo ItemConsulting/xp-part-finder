@@ -11,7 +11,7 @@ export default {
       id,
       params: {
         template: `
-        <div class="theme-brand1" style="background-color: var(--color-theme-base-default);">
+        <div data-color="brand1" style="background-color: var(--ds-color-base-default);">
           [#include "${id}" /]
         </div>
         `,

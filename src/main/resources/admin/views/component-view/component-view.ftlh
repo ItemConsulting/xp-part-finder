@@ -18,7 +18,7 @@
 </turbo-frame>
 
 [#macro contentTable contents project]
-  <table class="table">
+  <table class="ds-table" data-border data-color="neutral">
     <caption class="label-big">${project.displayName} (${project.id})</caption>
     <thead>
       <tr>
@@ -42,14 +42,14 @@
     <tbody>
     [#list contents as content]
       <tr>
-        <td>
+        <td class="type">
           <span title="${content.type}">
             [#-- Use non-breaking hyphen to prevent splitting to multiple lines --]
             ${content.type?keep_after(":")?esc?markup_string?replace("-", "&#8209;")?no_esc}
           </span>
         </td>
-        <td class="name">${content.displayName}</td>
-        <td><a href="${content.url}" target="_blank">${content._path?esc?markup_string?replace("-", "&#8209;")?replace("/", "<wbr>/")?no_esc}</a></td>
+        <td class="name"><span>${content.displayName}</span></td>
+        <td class="path"><a href="${content.url}" target="_blank">${content._path?esc?markup_string?replace("-", "&#8209;")?replace("/", "<wbr>/")?no_esc}</a></td>
       </tr>
     [/#list]
     </tbody>
