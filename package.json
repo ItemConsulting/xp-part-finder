@@ -26,8 +26,8 @@
     "lint:fix": "biome check --write",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "release": "npm run build",
-    "versioning": "npx changeset version && npm i --package-lock-only && NEW_VERSION=$(node -p \"require('./package.json').version\") && sed -i \"s/version.*/version = ${NEW_VERSION}/\" gradle.properties"
+    "release": "changeset publish",
+    "versioning": "changeset version && npm i --package-lock-only && node .changeset/gradle-version.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.9",
