@@ -9,7 +9,17 @@ type WithKey = {
   key: string;
 };
 
-export function getComponentNavLinkList(repoIds: string[], currentAppKey: string): ComponentNavLinkList[] {
+type UsageBucket = DateBucket | NumericBucket;
+
+/**
+ * Components used in content, by component type. Each bucket has the component key and number of content using it.
+ */
+export type ComponentUsages = Record<ComponentDescriptorType, UsageBucket[]>;
+
+/**
+ * Counts the usages of all components in all the given repos, with a single aggregation query
+ */
+export function queryComponentUsages(repoIds: string[]): ComponentUsages {
   const aggregations = {
     part: {
       terms: {
@@ -50,26 +60,39 @@ export function getComponentNavLinkList(repoIds: string[], currentAppKey: string
     },
   });
 
-  const appFilter = (bucket: DateBucket | NumericBucket) => startsWith(bucket.key, currentAppKey);
+  return {
+    PART: res.aggregations.part.buckets,
+    LAYOUT: res.aggregations.layout.buckets,
+    PAGE: res.aggregations.page.buckets,
+  };
+}
 
+/**
+ * Returns the usage buckets of the components in an application
+ */
+export function getAppUsages(buckets: UsageBucket[], appKey: string): UsageBucket[] {
+  return buckets.filter((bucket) => startsWith(bucket.key, `${appKey}:`));
+}
+
+export function getComponentNavLinkList(usages: ComponentUsages, currentAppKey: string): ComponentNavLinkList[] {
   return [
     {
       title: "Parts",
-      items: getComponentNavLinks(res.aggregations.part.buckets.filter(appFilter), currentAppKey, "PART"),
+      items: getComponentNavLinks(getAppUsages(usages.PART, currentAppKey), currentAppKey, "PART"),
     },
     {
       title: "Layouts",
-      items: getComponentNavLinks(res.aggregations.layout.buckets.filter(appFilter), currentAppKey, "LAYOUT"),
+      items: getComponentNavLinks(getAppUsages(usages.LAYOUT, currentAppKey), currentAppKey, "LAYOUT"),
     },
     {
       title: "Pages",
-      items: getComponentNavLinks(res.aggregations.page.buckets.filter(appFilter), currentAppKey, "PAGE"),
+      items: getComponentNavLinks(getAppUsages(usages.PAGE, currentAppKey), currentAppKey, "PAGE"),
     },
   ].filter((list) => list.items.length > 0);
 }
 
 function getComponentNavLinks(
-  buckets: (DateBucket | NumericBucket)[],
+  buckets: UsageBucket[],
   application: string,
   type: ComponentDescriptorType,
 ): ComponentNavLink[] {
@@ -98,7 +121,7 @@ function getComponentNavLinks(
 }
 
 function getComponentNavLink(
-  component: DateBucket | NumericBucket | PartDescriptor | LayoutDescriptor | PageDescriptor,
+  component: UsageBucket | PartDescriptor | LayoutDescriptor | PageDescriptor,
   type: ComponentDescriptorType,
   warningKey?: string | undefined,
 ): ComponentNavLink {

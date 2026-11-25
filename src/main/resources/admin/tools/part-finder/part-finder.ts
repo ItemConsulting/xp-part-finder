@@ -3,18 +3,34 @@ import { assetUrl } from "/lib/enonic/asset";
 import { render } from "/lib/freemarker";
 import { queryAllRepos } from "/lib/part-finder/nodes";
 import { getComponentAsAdmin, listComponentsAsAdmin } from "/lib/part-finder/schemas";
-import { assertIsDefined, flatMap, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
+import { flatMap, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
 import { LanguageRange, Locale } from "/lib/time";
 import { type Application, list as listApplications } from "/lib/xp/app";
 import type { Site } from "/lib/xp/content";
 import { getSupportedLocales, localize } from "/lib/xp/i18n";
 import { list as listProjects } from "/lib/xp/project";
-import type { ComponentDescriptor, ComponentDescriptorType, ListDynamicComponentsParams } from "/lib/xp/schema";
+import type { ComponentDescriptor, ComponentDescriptorType } from "/lib/xp/schema";
 import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
 import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
-import { getComponentNavLinkList } from "../../views/navigation/navigation";
+import {
+  type ComponentUsages,
+  getAppUsages,
+  getComponentNavLinkList,
+  queryComponentUsages,
+} from "../../views/navigation/navigation";
 import type { ComponentList } from "./part-finder.freemarker";
+
+type ComponentRef = {
+  key: string;
+  type: ComponentDescriptorType;
+};
+
+type AppWithComponents = {
+  app: Application;
+  componentCount: number;
+  firstComponent: ComponentRef;
+};
 
 type PartFinderQueryParams = {
   params: {
@@ -26,6 +42,7 @@ type PartFinderQueryParams = {
 };
 
 const LOCALE_DEFAULT = "en";
+const COMPONENT_TYPES: ComponentDescriptorType[] = ["PART", "LAYOUT", "PAGE"];
 const view = resolve("part-finder.ftlh");
 const componentView = resolve("../../views/component-view/component-view.ftlh");
 
@@ -51,15 +68,13 @@ export function get(req: Request<PartFinderQueryParams>): Response {
   }
 
   if (!currentItemKey) {
-    const firstComponent = getFirstComponent(installedApps[0]);
-
-    assertIsDefined(firstComponent);
+    const startComponent = getStartComponent(installedApps[0], queryComponentUsages(cmsRepoIds));
 
     return {
       body: undefined,
       redirect: getPartFinderUrl({
-        key: firstComponent.key,
-        type: firstComponent.type,
+        key: startComponent.key,
+        type: startComponent.type,
       }),
     };
   }
@@ -104,19 +119,18 @@ export function get(req: Request<PartFinderQueryParams>): Response {
     };
   }
 
-  const itemLists = getComponentNavLinkList(cmsRepoIds, currentAppKey);
+  const usages = queryComponentUsages(cmsRepoIds);
+  const itemLists = getComponentNavLinkList(usages, currentAppKey);
 
-  const filters = installedApps.map<Link>((app) => {
-    const firstComponent = getFirstComponent(app);
+  const filters = installedApps.map<Link>((appWithComponents) => {
+    const startComponent = getStartComponent(appWithComponents, usages);
 
     return {
-      text: app.key,
-      url: firstComponent
-        ? getPartFinderUrl({
-            key: firstComponent.key,
-            type: firstComponent.type,
-          })
-        : "",
+      text: appWithComponents.app.key,
+      url: getPartFinderUrl({
+        key: startComponent.key,
+        type: startComponent.type,
+      }),
     };
   });
 
@@ -146,7 +160,10 @@ function getLocale(req: Request): string {
   return Locale.filterTags(languageRange, getSupportedLocales(["i18n/phrases"]))[0] ?? LOCALE_DEFAULT;
 }
 
-function listAppsWithComponents(repoIds: string[]): Application[] {
+/**
+ * Lists the applications used by a site that have components, with the most components first
+ */
+function listAppsWithComponents(repoIds: string[]): AppWithComponents[] {
   const sites = queryAllRepos<Site<unknown>>(repoIds, {
     count: 1000,
     filters: {
@@ -163,30 +180,59 @@ function listAppsWithComponents(repoIds: string[]): Application[] {
 
   return listApplications()
     .filter((app) => applicationsKeys.indexOf(app.key) !== -1)
-    .filter((app) => notNullOrUndefined(getFirstComponent(app)));
+    .map(getAppWithComponents)
+    .filter(notNullOrUndefined)
+    .sort(byComponentCountDescending);
 }
 
-function getFirstComponent(app: Application): ComponentDescriptor | undefined {
-  return (
-    getFirstComponentAlphabetically({
-      type: "PART",
-      application: app.key,
-    }) ??
-    getFirstComponentAlphabetically({
-      type: "LAYOUT",
-      application: app.key,
-    }) ??
-    getFirstComponentAlphabetically({
-      type: "PAGE",
-      application: app.key,
-    })
+/**
+ * Lists each component type of the application once, and derives both the number of components and the first
+ * component (alphabetically, in the order parts, layouts, pages) from that. Returns undefined if it has no components.
+ */
+function getAppWithComponents(app: Application): AppWithComponents | undefined {
+  const componentsByType = COMPONENT_TYPES.map<ComponentDescriptor[]>((type) =>
+    listComponentsAsAdmin({ type, application: app.key }),
+  );
+  const firstComponent = componentsByType.map(getFirstAlphabetically).filter(notNullOrUndefined)[0];
+
+  return firstComponent
+    ? {
+        app,
+        componentCount: componentsByType.reduce((sum, components) => sum + components.length, 0),
+        firstComponent,
+      }
+    : undefined;
+}
+
+/**
+ * The component to show when selecting an application: the first component that is used in content, or else the first
+ * component in the application
+ */
+function getStartComponent(appWithComponents: AppWithComponents, usages: ComponentUsages): ComponentRef {
+  return getFirstUsedComponent(appWithComponents.app.key, usages) ?? appWithComponents.firstComponent;
+}
+
+/**
+ * Returns the first component (alphabetically, in the order parts, layouts, pages) of the application that is used in
+ * content
+ */
+function getFirstUsedComponent(appKey: string, usages: ComponentUsages): ComponentRef | undefined {
+  return COMPONENT_TYPES.map((type) =>
+    getFirstAlphabetically(
+      getAppUsages(usages[type], appKey).map<ComponentRef>((bucket) => ({ key: bucket.key, type })),
+    ),
+  ).filter(notNullOrUndefined)[0];
+}
+
+function getFirstAlphabetically<T extends { key: string }>(items: T[]): T | undefined {
+  return items.reduce<T | undefined>(
+    (first, item) => (!first || item.key.localeCompare(first.key) < 0 ? item : first),
+    undefined,
   );
 }
 
-function getFirstComponentAlphabetically(params: ListDynamicComponentsParams): ComponentDescriptor | undefined {
-  const components = listComponentsAsAdmin(params);
-  components.sort((a, b) => a.key.localeCompare(b.key));
-  return components[0];
+function byComponentCountDescending(a: AppWithComponents, b: AppWithComponents): number {
+  return b.componentCount - a.componentCount || a.app.key.localeCompare(b.app.key);
 }
 
 function getAppKey(key: string): string {

@@ -20,11 +20,14 @@ export function assertIsDefined<T>(value: T): asserts value is NonNullable<T> {
 export function find<T, S extends T>(arr: T[], predicate: (value: T) => value is S): S | undefined;
 export function find<T>(arr: T[], predicate: (value: T) => boolean): T | undefined;
 export function find<T>(arr: T[], predicate: (value: T) => boolean): T | undefined {
-  for (const key in arr) {
-    if (predicate(arr[key])) {
-      return arr[key];
+  // For performance reasons we use a for-loop here, instead of array methods (see "Functional programming" in AGENTS.md)
+  for (let i = 0; i < arr.length; i++) {
+    if (predicate(arr[i])) {
+      return arr[i];
     }
   }
+
+  return undefined;
 }
 
 export function difference<A, B>(xs: A[], ys: B[], predicate: (x: A, y: B) => boolean): A[] {
@@ -44,7 +47,18 @@ export function startsWith(str: string, searchString: string): boolean {
 }
 
 export function flatMap<A, B>(arr: A[], f: (val: A) => B[]): B[] {
-  return arr.reduce<B[]>((res, val) => res.concat(f(val)), []);
+  // For performance reasons we use a for-loop here, instead of array methods (see "Functional programming" in AGENTS.md)
+  const result: B[] = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    const values = f(arr[i]);
+
+    for (let j = 0; j < values.length; j++) {
+      result.push(values[j]);
+    }
+  }
+
+  return result;
 }
 
 export function stringAfterLast(str: string, delimiter: string): string {
