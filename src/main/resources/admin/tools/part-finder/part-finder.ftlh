@@ -1,6 +1,6 @@
 [#-- @ftlvariable name="locale" type="String" --]
 [#-- @ftlvariable name="title" type="String" --]
-[#-- @ftlvariable name="viewport" type="String" --]
+[#-- @ftlvariable name="storybook" type="Boolean" --]
 [#-- @ftlvariable name="baseAssetUrl" type="String" --]
 [#-- @ftlvariable name="filters" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="itemLists" type="java.util.ArrayList" --]
@@ -17,8 +17,8 @@
     [#-- Do not show cached previews when visiting a page again, so quick clicks only render the last page --]
     <meta name="turbo-cache-control" content="no-preview" />
 
-    [#-- If not storybook --]
-    [#if !viewport?has_content]
+    [#-- Storybook loads the styles itself (.storybook/preview.ts), and does not serve the built assets --]
+    [#if !(storybook!false)]
       <link rel="icon" href="${baseAssetUrl}/images/icon.svg">
       <link rel="mask-icon" href="${baseAssetUrl}/images/icon.svg" color="#000000">
       <link rel="stylesheet" href="${baseAssetUrl}/styles/main.min.css" />

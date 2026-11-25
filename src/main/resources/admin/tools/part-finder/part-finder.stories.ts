@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@itemconsulting/xp-storybook-utils";
+import type { Meta, StoryObj } from "@storybook/server";
 import { componentView } from "../../views/component-view/component-view.stories";
 import { header } from "../../views/header/header.stories";
 import { navigation } from "../../views/navigation/navigation.stories";
@@ -20,5 +20,7 @@ export const partFinder: StoryObj = {
     itemLists: navigation.args?.itemLists,
     currentItem: componentView.args?.currentItem,
     currentItemKey: componentView.args?.currentItem?.key,
+    // Leaves out the <link> and <script> elements for the built assets, which Storybook does not serve
+    storybook: true,
   },
 };

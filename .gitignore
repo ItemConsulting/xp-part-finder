@@ -104,4 +104,5 @@ crashlytics-build.properties
 # ES lint
 
 *storybook.log
+storybook-static
 .env

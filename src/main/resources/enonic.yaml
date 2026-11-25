@@ -1,0 +1,5 @@
+kind: "Application"
+title: "Part finder"
+description: "Admin tool to see where parts or layouts are used"
+vendorName: "Item Consulting"
+vendorUrl: "https://item.no"

@@ -37,7 +37,11 @@
 
     "skipLibCheck": true,
 
-    // Only allow APIs that are available in the Nashorn engine used by Enonic XP 7
+    // XP's server-side engine is Nashorn, which is ES5.1. The bundler lowers ES2015+ *syntax*,
+    // but nothing polyfills ES2015+ *built-ins* — so "lib": ["ES5"] is what stops
+    // Object.entries / Array.prototype.find and friends reaching the server, where they
+    // fail at runtime with "... is not a function".
+    "target": "ES2015",
     "lib": ["es5"],
 
     // By default all visible ”@types” packages are included in your compilation.

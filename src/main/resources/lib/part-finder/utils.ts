@@ -76,6 +76,22 @@ export function indexBy<A>(arr: A[], getKey: (val: A) => string): Record<string,
   return result;
 }
 
+/**
+ * Groups the values of a list by the key `getKey` creates for each value, keeping the order of the list in each group
+ */
+export function groupBy<A>(arr: A[], getKey: (val: A) => string): Record<string, A[]> {
+  // For performance reasons we use a for-loop here, instead of array methods (see "Functional programming" in AGENTS.md)
+  const result: Record<string, A[]> = {};
+
+  for (let i = 0; i < arr.length; i++) {
+    const key = getKey(arr[i]);
+    result[key] = result[key] ?? [];
+    result[key].push(arr[i]);
+  }
+
+  return result;
+}
+
 export function stringAfterLast(str: string, delimiter: string): string {
   return str.substring(str.lastIndexOf(delimiter) + 1);
 }

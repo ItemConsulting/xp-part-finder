@@ -1,12 +1,11 @@
 import type { Request, Response, SortDirection } from "@enonic-types/core";
 import { assetUrl } from "/lib/enonic/asset";
 import { render } from "/lib/freemarker";
-import { queryAllRepos } from "/lib/part-finder/nodes";
+import { querySiteApplicationKeys } from "/lib/part-finder/nodes";
 import { getComponentAsAdmin, listComponentsAsAdmin } from "/lib/part-finder/schemas";
-import { flatMap, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
+import { forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
 import { LanguageRange, Locale } from "/lib/time";
 import { type Application, list as listApplications } from "/lib/xp/app";
-import type { Site } from "/lib/xp/content";
 import { getSupportedLocales, localize } from "/lib/xp/i18n";
 import { list as listProjects } from "/lib/xp/project";
 import type { ComponentDescriptor, ComponentDescriptorType } from "/lib/xp/schema";
@@ -91,13 +90,14 @@ export function get(req: Request<PartFinderQueryParams>): Response {
             getComponentAsAdmin({
               key: currentItemKey,
               type: currentItemType,
-            })?.displayName ?? "",
+            })?.title ?? "",
         },
         {
           field: req.params.sort ?? "_path",
           direction: parseSortDirection(req.params.dir) ?? "ASC",
         },
         locale,
+        projects,
       )
     : undefined;
 
@@ -166,22 +166,10 @@ function getLocale(req: Request): string {
  * Lists the applications used by a site that have components, with the most components first
  */
 function listAppsWithComponents(repoIds: string[]): AppWithComponents[] {
-  const sites = queryAllRepos<Site<unknown>>(repoIds, {
-    count: 1000,
-    filters: {
-      hasValue: {
-        field: "type",
-        values: ["portal:site"],
-      },
-    },
-  });
-
-  const applicationsKeys = flatMap(sites, (site) =>
-    forceArray(site.data.siteConfig).map((config) => config.applicationKey),
-  );
+  const siteApplicationKeys = querySiteApplicationKeys(repoIds);
 
   return listApplications()
-    .filter((app) => applicationsKeys.indexOf(app.key) !== -1)
+    .filter((app) => siteApplicationKeys.indexOf(app.key.toLowerCase()) !== -1)
     .map(getAppWithComponents)
     .filter(notNullOrUndefined)
     .sort(byComponentCountDescending);
