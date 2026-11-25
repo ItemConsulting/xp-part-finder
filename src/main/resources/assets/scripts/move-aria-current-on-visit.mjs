@@ -3,10 +3,14 @@ class MoveAriaCurrentOnVisit extends HTMLElement {
 
   connectedCallback() {
     this.allLinkEls = this.querySelectorAll("a[href]");
+    // "turbo:click" marks the clicked link at once, before the response arrives. "turbo:visit" covers the rest, such
+    // as going back and forward in the browser history.
+    document.addEventListener("turbo:click", this.onVisit);
     document.addEventListener("turbo:visit", this.onVisit);
   }
 
   disconnectedCallback() {
+    document.removeEventListener("turbo:click", this.onVisit);
     document.removeEventListener("turbo:visit", this.onVisit);
   }
 

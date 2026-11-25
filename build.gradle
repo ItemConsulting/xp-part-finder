@@ -32,7 +32,7 @@ dependencies {
   include "com.enonic.lib:lib-asset:1.0.3"
   include "no.item:lib-xp-time:1.6.1"
   include "no.item:lib-xp-freemarker:3.0.0"
-  webjar "org.webjars.npm:hotwired__turbo:8.0.13"
+  webjar "org.webjars.npm:hotwired__turbo:8.0.23"
 }
 
 repositories {
