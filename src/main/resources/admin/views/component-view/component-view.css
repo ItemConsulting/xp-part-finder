@@ -58,3 +58,13 @@
     transform: rotate(180deg);
   }
 }
+
+/* Fade the content while a new component is loading (Turbo sets aria-busy), with a delay so fast loads do not flicker */
+#content-view {
+  transition: opacity 0.2s;
+
+  &[aria-busy="true"] {
+    opacity: 0.5;
+    transition-delay: 0.2s;
+  }
+}

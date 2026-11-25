@@ -14,13 +14,15 @@
 		<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="view-transition" content="same-origin" />
+    [#-- Do not show cached previews when visiting a page again, so quick clicks only render the last page --]
+    <meta name="turbo-cache-control" content="no-preview" />
 
     [#-- If not storybook --]
     [#if !viewport?has_content]
       <link rel="icon" href="${baseAssetUrl}/images/icon.svg">
       <link rel="mask-icon" href="${baseAssetUrl}/images/icon.svg" color="#000000">
       <link rel="stylesheet" href="${baseAssetUrl}/styles/main.min.css" />
-      <script type="module" src="${baseAssetUrl}/hotwired__turbo/8.0.13/dist/turbo.es2017-esm.js"></script>
+      <script type="module" src="${baseAssetUrl}/hotwired__turbo/8.0.23/dist/turbo.es2017-esm.js"></script>
       <script type="module" src="${baseAssetUrl}/scripts/move-aria-current-on-visit.mjs"></script>
     [/#if]
 
