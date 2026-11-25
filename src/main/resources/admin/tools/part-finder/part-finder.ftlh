@@ -5,6 +5,7 @@
 [#-- @ftlvariable name="filters" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="itemLists" type="java.util.ArrayList" --]
 [#-- @ftlvariable name="currentItemKey" type="String" --]
+[#-- @ftlvariable name="currentItemType" type="String" --]
 [#-- @ftlvariable name="currentItem" type="Object" --]
 [#import "../../views/navigation/navigation.ftlh" as Navigation]
 
@@ -35,7 +36,7 @@
       </div>
 
       <div class="layout--nav">
-        [@Navigation.render itemLists=itemLists currentItemKey=currentItemKey /]
+        [@Navigation.render itemLists=itemLists currentItemKey=currentItemKey currentItemType=currentItemType!"" /]
       </div>
 
       <div class="layout--content">

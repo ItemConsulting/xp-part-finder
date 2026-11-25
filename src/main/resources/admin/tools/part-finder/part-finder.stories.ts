@@ -20,6 +20,7 @@ export const partFinder: StoryObj = {
     itemLists: navigation.args?.itemLists,
     currentItem: componentView.args?.currentItem,
     currentItemKey: componentView.args?.currentItem?.key,
+    currentItemType: "PART",
     // Leaves out the <link> and <script> elements for the built assets, which Storybook does not serve
     storybook: true,
   },

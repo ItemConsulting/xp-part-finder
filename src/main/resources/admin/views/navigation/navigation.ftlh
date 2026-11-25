@@ -5,9 +5,10 @@
 [#-- @ftlvariable name="item.url" type="String" --]
 [#-- @ftlvariable name="item.docCount" type="Integer" --]
 [#-- @ftlvariable name="item.key" type="String" --]
+[#-- @ftlvariable name="item.type" type="String" --]
 [#-- @ftlvariable name="item.warningKey" type="String" --]
 
-[#macro render itemLists currentItemKey=""]
+[#macro render itemLists currentItemKey="" currentItemType=""]
   <move-aria-current-on-visit class="navigation">
     [#list itemLists as itemList]
       [#local labelId=itemList.title?lower_case]
@@ -22,7 +23,7 @@
                   data-turbo-frame="content-view"
                   data-turbo-action="advance"
                   [#if item.docCount > 0]href="${item.url}"[/#if]
-                  [#if item.key == currentItemKey]aria-current="page"[/#if]>
+                  [#if item.key == currentItemKey && item.type == currentItemType]aria-current="page"[/#if]>
 
                   <span class="key">${item.key?keep_after(":")}</span><span>&nbsp;(${item.docCount})</span>
 

@@ -1,4 +1,4 @@
-import type { FieldSortDsl, PrincipalKey, SortDirection } from "@enonic-types/core";
+import type { FieldSortDsl, Filter, PrincipalKey, SortDirection } from "@enonic-types/core";
 import { forceArray, getPartFinderUrl, groupBy, indexBy, notNullOrUndefined, startsWith } from "/lib/part-finder/utils";
 import { getToolUrl } from "/lib/xp/admin";
 import { get as getContext } from "/lib/xp/context";
@@ -35,14 +35,18 @@ const ARIA_SORT_DIRECTION: Record<SortDirection, AriaSortDirection> = {
   DESC: "descending",
 } as const;
 
+/**
+ * Lists the content matching `usageFilter` (the content using the component) in each project
+ */
 export function getComponentUsagesInProjects(
   component: { key: string; type: string; displayName: string },
+  usageFilter: Filter,
   sort: UsageSort,
   locale: string,
   projects: Project[],
 ): ComponentView {
   const principals = forceArray(getContext().authInfo?.principals);
-  const hitsByRepoId = queryUsageHitsByRepoId(projects.map(getRepoId), component, sort, principals);
+  const hitsByRepoId = queryUsageHitsByRepoId(projects.map(getRepoId), usageFilter, sort, principals);
 
   return {
     key: component.key,
@@ -60,12 +64,24 @@ export function getComponentUsagesInProjects(
 }
 
 /**
- * Finds the content using the component in all the given repos with a single query. Returns the hits of each repo that
+ * Matches the content using a part, layout or page
+ */
+export function getComponentUsageFilter(component: { key: string; type: string }): Filter {
+  return {
+    hasValue: {
+      field: `components.${component.type}.descriptor`,
+      values: [component.key],
+    },
+  };
+}
+
+/**
+ * Finds the content matching the filter in all the given repos with a single query. Returns the hits of each repo that
  * has any, in the order of the sort.
  */
 function queryUsageHitsByRepoId(
   repoIds: string[],
-  component: { key: string; type: string },
+  usageFilter: Filter,
   sort: UsageSort,
   principals: PrincipalKey[],
 ): Record<string, UsageHit[]> {
@@ -82,12 +98,7 @@ function queryUsageHitsByRepoId(
       direction: sort.direction,
     },
     filters: [
-      {
-        hasValue: {
-          field: `components.${component.type}.descriptor`,
-          values: [component.key],
-        },
-      },
+      usageFilter,
       {
         notExists: {
           field: "archivedTime",

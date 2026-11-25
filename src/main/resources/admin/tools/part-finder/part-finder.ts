@@ -1,21 +1,29 @@
 import type { Request, Response, SortDirection } from "@enonic-types/core";
 import { assetUrl } from "/lib/enonic/asset";
 import { render } from "/lib/freemarker";
+import { type AppBlocks, getAppBlocks, getBlockUsageFilter, queryBlockUsages } from "/lib/part-finder/blocks";
 import { querySiteApplicationKeys } from "/lib/part-finder/nodes";
 import { getComponentAsAdmin, listComponentsAsAdmin } from "/lib/part-finder/schemas";
-import { forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
+import { find, forceArray, getPartFinderUrl, notNullOrUndefined } from "/lib/part-finder/utils";
 import { LanguageRange, Locale } from "/lib/time";
 import { type Application, list as listApplications } from "/lib/xp/app";
+import { get as getContext } from "/lib/xp/context";
 import { getSupportedLocales, localize } from "/lib/xp/i18n";
-import { list as listProjects } from "/lib/xp/project";
+import { list as listProjects, type Project } from "/lib/xp/project";
 import type { ComponentDescriptor, ComponentDescriptorType } from "/lib/xp/schema";
-import { getComponentUsagesInProjects } from "../../views/component-view/component-view";
-import type { ComponentViewParams } from "../../views/component-view/component-view.freemarker";
+import {
+  getComponentUsageFilter,
+  getComponentUsagesInProjects,
+  type UsageSort,
+} from "../../views/component-view/component-view";
+import type { ComponentView, ComponentViewParams } from "../../views/component-view/component-view.freemarker";
 import type { Header, Link } from "../../views/header/header.freemarker";
 import {
   type ComponentUsages,
   getAppUsages,
+  getBlockNavLinkList,
   getComponentNavLinkList,
+  type NavItemType,
   queryComponentUsages,
   withSchemaKeys,
 } from "../../views/navigation/navigation";
@@ -36,7 +44,7 @@ type AppWithComponents = {
 type PartFinderQueryParams = {
   params: {
     key: string;
-    type: ComponentDescriptorType;
+    type: string;
     sort?: string;
     dir?: string;
   };
@@ -44,11 +52,12 @@ type PartFinderQueryParams = {
 
 const LOCALE_DEFAULT = "en";
 const COMPONENT_TYPES: ComponentDescriptorType[] = ["PART", "LAYOUT", "PAGE"];
+const NO_COMPONENTS: Record<ComponentDescriptorType, ComponentDescriptor[]> = { PART: [], LAYOUT: [], PAGE: [] };
 const view = resolve("part-finder.ftlh");
 const componentView = resolve("../../views/component-view/component-view.ftlh");
 
 export function get(req: Request<PartFinderQueryParams>): Response {
-  const currentItemType = parseComponentType(req.params.type);
+  const currentItemType = parseItemType(req.params.type);
   const currentItemKey = req.params.key;
   const projects = listProjects();
   const cmsRepoIds = projects.map((project) => `com.enonic.cms.${project.id}`);
@@ -81,24 +90,26 @@ export function get(req: Request<PartFinderQueryParams>): Response {
   }
 
   const currentAppKey = getAppKey(currentItemKey);
+  const isTurboFrameRequest = req.headers["turbo-frame"] === "content-view";
+  const currentAppComponents =
+    find(installedApps, (it) => it.app.key === currentAppKey)?.componentsByType ?? NO_COMPONENTS;
+
+  // Blocks are only looked up when they are shown, in the navigation or in the component view
+  const appBlocks =
+    currentItemType === "BLOCK" || !isTurboFrameRequest ? getAppBlocks(currentAppKey, currentAppComponents) : undefined;
+
   const currentItem = currentItemType
-    ? getComponentUsagesInProjects(
-        {
-          key: currentItemKey,
-          type: currentItemType,
-          displayName:
-            getComponentAsAdmin({
-              key: currentItemKey,
-              type: currentItemType,
-            })?.title ?? "",
-        },
-        {
+    ? getCurrentItem({
+        key: currentItemKey,
+        type: currentItemType,
+        appBlocks,
+        sort: {
           field: req.params.sort ?? "_path",
           direction: parseSortDirection(req.params.dir) ?? "ASC",
         },
         locale,
         projects,
-      )
+      })
     : undefined;
 
   if (!currentItem) {
@@ -109,7 +120,7 @@ export function get(req: Request<PartFinderQueryParams>): Response {
   }
 
   // If in Turbo Frame, only render the component view
-  if (req.headers["turbo-frame"] === "content-view") {
+  if (isTurboFrameRequest) {
     return {
       body: wrapInHtml({
         markup: render<ComponentViewParams>(componentView, {
@@ -122,7 +133,15 @@ export function get(req: Request<PartFinderQueryParams>): Response {
   }
 
   const usages = queryComponentUsages(cmsRepoIds);
-  const itemLists = getComponentNavLinkList(usages, currentAppKey);
+  const blockNavLinkList = appBlocks
+    ? getBlockNavLinkList(
+        appBlocks,
+        queryBlockUsages(cmsRepoIds, appBlocks, forceArray(getContext().authInfo?.principals)),
+      )
+    : undefined;
+  const itemLists = [...getComponentNavLinkList(usages, currentAppKey, currentAppComponents), blockNavLinkList].filter(
+    notNullOrUndefined,
+  );
 
   const filters = installedApps.map<Link>((appWithComponents) => {
     const startComponent = getStartComponent(appWithComponents, usages);
@@ -142,6 +161,7 @@ export function get(req: Request<PartFinderQueryParams>): Response {
       title,
       filters,
       currentItemKey,
+      currentItemType,
       currentAppKey,
       currentItem,
       itemLists,
@@ -150,6 +170,54 @@ export function get(req: Request<PartFinderQueryParams>): Response {
       }),
     }),
   };
+}
+
+/**
+ * Lists the content using a component, or a block from the blocks library. Returns undefined for a block if the
+ * application has no blocks, does not use them in any content type, component or mixin, or the key has no block name.
+ */
+function getCurrentItem({
+  key,
+  type,
+  appBlocks,
+  sort,
+  locale,
+  projects,
+}: {
+  key: string;
+  type: NavItemType;
+  appBlocks: AppBlocks | undefined;
+  sort: UsageSort;
+  locale: string;
+  projects: Project[];
+}): ComponentView | undefined {
+  if (type === "BLOCK") {
+    const blockName = key.split(":")[1];
+    const block = appBlocks ? find(appBlocks.blocks, (it) => it.name === blockName) : undefined;
+    const usageFilter = appBlocks ? getBlockUsageFilter(appBlocks, blockName) : undefined;
+
+    return usageFilter
+      ? getComponentUsagesInProjects(
+          { key, type, displayName: block?.label ?? "" },
+          usageFilter,
+          sort,
+          locale,
+          projects,
+        )
+      : undefined;
+  }
+
+  return getComponentUsagesInProjects(
+    {
+      key,
+      type,
+      displayName: getComponentAsAdmin({ key, type })?.title ?? "",
+    },
+    getComponentUsageFilter({ key, type }),
+    sort,
+    locale,
+    projects,
+  );
 }
 
 function getLocale(req: Request): string {
@@ -253,10 +321,10 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function parseComponentType(str: string = ""): ComponentDescriptorType | undefined {
+function parseItemType(str: string = ""): NavItemType | undefined {
   const uppercasedStr = str.toUpperCase();
 
-  if (uppercasedStr === "PAGE" || uppercasedStr === "LAYOUT" || uppercasedStr === "PART") {
+  if (uppercasedStr === "PAGE" || uppercasedStr === "LAYOUT" || uppercasedStr === "PART" || uppercasedStr === "BLOCK") {
     return uppercasedStr;
   }
 
