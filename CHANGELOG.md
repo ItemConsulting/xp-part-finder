@@ -1,5 +1,21 @@
 # @itemconsulting/xp-part-finder
 
+## 1.3.0
+
+### Minor Changes
+
+- e6b3122: Make the component groups (parts, layouts, pages) in the navigation menu collapsible
+- bbbd956: Sort the applications by number of components (most first), and open the first component that is used in content when selecting an application
+
+### Patch Changes
+
+- a8ec76c: Fix components with capital letters in their name being listed twice, once with a "missing schema" warning and once as unused (#31)
+- e6b3122: Fix event listeners piling up in the navigation menu when switching between applications
+- e6b3122: Set the `lang` attribute on the page to the current locale
+- e9c7015: Only render the last page when switching quickly between applications, mark the clicked component at once, and fade the content while it is loading (#6)
+- e6b3122: Rename the "Select application" label to "Applications", and improve the Norwegian text for components missing a schema
+- 4a17c6d: Use more of the screen width, so tables with long paths no longer need horizontal scrolling
+
 ## 1.2.0
 
 ### Minor Changes
