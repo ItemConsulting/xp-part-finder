@@ -61,6 +61,21 @@ export function flatMap<A, B>(arr: A[], f: (val: A) => B[]): B[] {
   return result;
 }
 
+/**
+ * Creates a lookup object from a list, using `getKey` to create the key of each value. Later values with the same key
+ * replace earlier ones.
+ */
+export function indexBy<A>(arr: A[], getKey: (val: A) => string): Record<string, A> {
+  // For performance reasons we use a for-loop here, instead of array methods (see "Functional programming" in AGENTS.md)
+  const result: Record<string, A> = {};
+
+  for (let i = 0; i < arr.length; i++) {
+    result[getKey(arr[i])] = arr[i];
+  }
+
+  return result;
+}
+
 export function stringAfterLast(str: string, delimiter: string): string {
   return str.substring(str.lastIndexOf(delimiter) + 1);
 }

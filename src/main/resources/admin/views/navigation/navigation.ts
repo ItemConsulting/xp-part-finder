@@ -1,5 +1,5 @@
 import { listComponentsAsAdmin } from "/lib/part-finder/schemas";
-import { difference, forceArray, getPartFinderUrl, startsWith } from "/lib/part-finder/utils";
+import { difference, forceArray, getPartFinderUrl, indexBy, startsWith } from "/lib/part-finder/utils";
 import { get as getContext } from "/lib/xp/context";
 import { type Aggregations, type DateBucket, multiRepoConnect, type NumericBucket } from "/lib/xp/node";
 import type { ComponentDescriptorType, LayoutDescriptor, PageDescriptor, PartDescriptor } from "/lib/xp/schema";
@@ -68,10 +68,27 @@ export function queryComponentUsages(repoIds: string[]): ComponentUsages {
 }
 
 /**
- * Returns the usage buckets of the components in an application
+ * Returns the usage buckets of the components in an application.
+ *
+ * XP indexes descriptors in lowercase, so the bucket keys are lowercased (see `withSchemaKeys`).
  */
 export function getAppUsages(buckets: UsageBucket[], appKey: string): UsageBucket[] {
-  return buckets.filter((bucket) => startsWith(bucket.key, `${appKey}:`));
+  const prefix = `${appKey.toLowerCase()}:`;
+  return buckets.filter((bucket) => startsWith(bucket.key.toLowerCase(), prefix));
+}
+
+/**
+ * XP indexes descriptors in lowercase, so the keys of the usage buckets are lowercased (e.g. "my.app:mypart" instead of
+ * "my.app:myPart"). Replaces each bucket key with the key of the component schema that matches it case-insensitively,
+ * to restore the original casing. Buckets without a matching schema keep their key.
+ */
+export function withSchemaKeys(buckets: UsageBucket[], components: WithKey[]): UsageBucket[] {
+  const componentsByLowerCaseKey = indexBy(components, (component) => component.key.toLowerCase());
+
+  return buckets.map((bucket) => {
+    const component = componentsByLowerCaseKey[bucket.key.toLowerCase()];
+    return component ? { ...bucket, key: component.key } : bucket;
+  });
 }
 
 export function getComponentNavLinkList(usages: ComponentUsages, currentAppKey: string): ComponentNavLinkList[] {
@@ -92,7 +109,7 @@ export function getComponentNavLinkList(usages: ComponentUsages, currentAppKey: 
 }
 
 function getComponentNavLinks(
-  buckets: UsageBucket[],
+  appUsages: UsageBucket[],
   application: string,
   type: ComponentDescriptorType,
 ): ComponentNavLink[] {
@@ -100,6 +117,7 @@ function getComponentNavLinks(
     type,
     application,
   });
+  const buckets = withSchemaKeys(appUsages, componentsWithSchema);
 
   const unusedComponents = difference(componentsWithSchema, buckets, keysEqual).map((component) =>
     getComponentNavLink(component, type),
