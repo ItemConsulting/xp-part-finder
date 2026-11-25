@@ -1,5 +1,15 @@
 # @itemconsulting/xp-part-finder
 
+## 2.0.0
+
+### Major Changes
+
+- 3caeb48: Migrate to Enonic XP 8. The app now requires XP 8.1 or newer, and no longer installs on XP 7
+
+### Minor Changes
+
+- abe5dc8: List the blocks from the blocks library (lib-xp-blocks)
+
 ## 1.3.0
 
 ### Minor Changes
