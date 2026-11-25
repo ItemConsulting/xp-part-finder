@@ -54,6 +54,7 @@
     "@storybook/server": "^10.6.9",
     "@swc/core": "^1.16.22",
     "@types/node": "^24.19.0",
+    "addon-storybook-sync": "0.1.0",
     "concurrently": "^10",
     "cssnano": "^9.9.0",
     "postcss": "^8.5.33",

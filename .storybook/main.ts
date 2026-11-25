@@ -4,7 +4,13 @@ import { mergeConfig } from "vite";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.ts"],
-  addons: ["@storybook/addon-links", "@storybook/addon-a11y", "@storybook/addon-docs"],
+  addons: [
+    {
+      name: "addon-storybook-sync",
+      options: {
+        port: Number(process.env.WEBSTORM_ADDON_STORYBOOK_SYNC_PORT) || undefined,
+      },
+    },"@storybook/addon-links", "@storybook/addon-a11y", "@storybook/addon-docs"],
   staticDirs: ["../src/main/resources/assets"],
   framework: {
     name: "@itemconsulting/storybook-framework-enonic-xp",
