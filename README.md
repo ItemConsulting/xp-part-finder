@@ -3,6 +3,7 @@
 When you are working on an XP-part – you might want to know all the content where it's being used. This app provides an
 admin tool that lists usage of your components (parts, layouts, pages) to help you with testing and configuration.
 
+![Build badge](https://github.com/ItemConsulting/xp-part-finder/actions/workflows/main.yml/badge.svg)
 [![](https://repo.itemtest.no/api/badge/latest/releases/no/item/xp-part-finder)](https://repo.itemtest.no/#/releases/no/item/xp-part-finder)
 
 ![Part finder icon](./src/main/resources/application.svg)

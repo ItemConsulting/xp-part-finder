@@ -98,7 +98,9 @@ jobs:
       # PR was merged, or when the workflow was started by hand to retry.
       - name: Publish jar to repo.itemtest.no
         if: github.event_name == 'workflow_dispatch' || steps.changesets.outputs.published == 'true'
-        run: ./gradlew publishAllPublicationsToItemtestRepositoryRepository
+        # The production flag leaves out X-Source-Paths (used by XP dev mode) from the jar. The Enonic
+        # Gradle plugin refuses to publish a jar that has them.
+        run: ./gradlew publishAllPublicationsToItemtestRepositoryRepository -Pcom.enonic.xp.app.production=true
         env:
           # build.gradle declares the repository as `itemtestRepository` with
           # credentials(PasswordCredentials), which reads these two properties.
